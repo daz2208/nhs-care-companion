@@ -17,22 +17,12 @@ NHS_TRUSTS = [
     "Barts Health NHS Trust",
     "Manchester University NHS Foundation Trust",
     "Birmingham Women's and Children's NHS FT",
-    "Royal Wolverhampton NHS Trust",
-    "Leeds Teaching Hospitals NHS Trust",
-    "University Hospitals Bristol and Weston NHS Foundation Trust",
-    "Nottingham University Hospitals NHS Trust",
-    "Sheffield Teaching Hospitals NHS Foundation Trust",
-    "Oxford University Hospitals NHS Foundation Trust",
-    "University Hospitals of Leicester NHS Trust",
-    "Newcastle upon Tyne Hospitals NHS Foundation Trust",
-    "East Kent Hospitals University NHS Foundation Trust",
-    "Liverpool University Hospitals NHS Foundation Trust"
+    "Royal Wolverhampton NHS Trust"
 ]
 CCG_LIST = [
     "NHS North West London CCG",
     "NHS Bristol, North Somerset and South Gloucestershire CCG",
 ]
-
 UK_SCENARIO_TEMPLATES = {
     "Geriatrics": {
         "Initial Assessment": {
@@ -43,7 +33,6 @@ UK_SCENARIO_TEMPLATES = {
         }
     }
 }
-
 LETTER_STRUCTURE = {
     "Care Home Complaint": {
         "Neglect": [
@@ -107,9 +96,10 @@ def generate_pdf_from_markdown(title: str, markdown_content: str) -> bytes:
         pdf.multi_cell(0, 8, line)
     return pdf.output(dest='S').encode('latin-1')
 
+# ✅ Updated for OpenAI v1+
 def call_openai(prompt: str, model: str = "gpt-3.5-turbo", temperature: float = 0.5) -> str:
-    openai.api_key = st.secrets["openai"]["api_key"]
-    response = openai.ChatCompletion.create(
+    client = openai.OpenAI()
+    response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],
         temperature=temperature
@@ -229,3 +219,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
