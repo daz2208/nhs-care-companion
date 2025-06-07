@@ -1,177 +1,47 @@
 import json
 import streamlit as st
 from openai import OpenAI
-from streamlit_extras.stylable_container import stylable_container
+from typing import Dict, List, Tuple
 
-# --- PAGE CONFIG ---
-st.set_page_config(
-    page_title="Care Letter Generator",
-    page_icon="💌",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# --- GLOBAL STATE ---
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "gdpr_consent" not in st.session_state:
-    st.session_state.gdpr_consent = False
-if "language" not in st.session_state:
-    st.session_state.language = "English"
-if "tone" not in st.session_state:
-    st.session_state.tone = "Standard"
-
-# --- THEME OVERRIDES ---
-st.markdown("""
-<style>
-html, body { background-color: #F4F7FA; }
-.main .block-container { padding: 2rem; background: #FFFFFF; border-radius: 12px; }
-.stButton>button, .stDownloadButton>button { border-radius: 8px; margin-top: 0.5rem; }
-</style>
-""", unsafe_allow_html=True)
-
-# --- SIDEBAR NAVIGATION ---
-st.sidebar.title("⚙️ Settings & Info")
-tab = st.sidebar.radio("Navigate", ["Generate", "About"])
-
-# --- AUTHENTICATION ---
+# --- CONSTANTS ---
 VALID_KEYS_FILE = "valid_keys.json"
-if not st.session_state.authenticated:
-    st.sidebar.subheader("🔑 License Authentication")
-    key = st.sidebar.text_input("Enter license key", type="password", help="Your unique access key.")
-    if st.sidebar.button("Submit Key"):
-        try:
-            valid_keys = json.load(open(VALID_KEYS_FILE))
-        except FileNotFoundError:
-            valid_keys = []
-        if key in valid_keys:
-            st.session_state.authenticated = True
-            st.sidebar.success("✅ Access granted")
-            st.experimental_rerun()
-        else:
-            st.sidebar.error("⛔ Invalid key")
-    st.stop()
-
-# --- OPENAI CLIENT ---
-client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-
-# --- LANGUAGE DICTIONARIES ---
 LANGUAGES = {
-    "English": {
-        "title": "Care Letter Generator",
-        "gdpr_title": "GDPR Consent Required",
-        "gdpr_info": "We require your consent to process data in line with GDPR guidelines before proceeding.",
-        "consent_check": "I consent to data processing under GDPR",
-        "consent_warning": "Please consent to GDPR to continue.",
-        "settings": "Settings",
-        "letter_tone": "Select Tone",
-        "tone_help": "Choose a calm or formal complaint tone.",
-        "about": "About This Tool",
-        "about_text": "Generate professional care-related letters with ease.",
-        "letter_category": "Select Letter Category",
-        "category_help": "Choose your issue category.",
-        "specific_issue": "Select Specific Issue",
-        "issue_help": "Choose the detailed issue.",
-        "your_details": "Your Details",
-        "full_name": "Full Name",
-        "contact_info": "Contact Information",
-        "generate": "Generate Letter",
-        "name_warning": "Please enter your name.",
-        "generating": "Generating your letter...",
-        "generated_letter": "Generated Letter",
-        "download_txt": "Download as .txt",
-        "download_doc": "Download as .doc",
-        "error_message": "Error:",
-        "error_help": "Check your inputs or connection."
-    },
-    "Español": {
-        "title": "Generador de Cartas de Cuidado",
-        "gdpr_title": "Consentimiento GDPR Requerido",
-        "gdpr_info": "Requerimos su consentimiento para procesar datos de acuerdo con el GDPR antes de continuar.",
-        "consent_check": "Consiento el procesamiento de datos bajo GDPR",
-        "consent_warning": "Por favor, otorgue su consentimiento GDPR para continuar.",
-        "settings": "Configuración",
-        "letter_tone": "Seleccione el tono",
-        "tone_help": "Elija un tono tranquilo o de queja formal.",
-        "about": "Acerca de esta herramienta",
-        "about_text": "Genere cartas profesionales relacionadas con el cuidado con facilidad.",
-        "letter_category": "Seleccione la categoría de carta",
-        "category_help": "Elija la categoría de su problema.",
-        "specific_issue": "Seleccione el problema específico",
-        "issue_help": "Elija el problema detallado.",
-        "your_details": "Sus datos",
-        "full_name": "Nombre completo",
-        "contact_info": "Información de contacto",
-        "generate": "Generar carta",
-        "name_warning": "Por favor ingrese su nombre.",
-        "generating": "Generando su carta...",
-        "generated_letter": "Carta generada",
-        "download_txt": "Descargar como .txt",
-        "download_doc": "Descargar como .doc",
-        "error_message": "Error:",
-        "error_help": "Verifique sus entradas o conexión."
-    },
-    "Français": {
-        "title": "Générateur de Lettres de Soins",
-        "gdpr_title": "Consentement GDPR Requis",
-        "gdpr_info": "Nous nécessitons votre consentement pour traiter les données conformément au RGPD avant de continuer.",
-        "consent_check": "Je consens au traitement des données selon le RGPD",
-        "consent_warning": "Veuillez fournir votre consentement RGPD pour continuer.",
-        "settings": "Paramètres",
-        "letter_tone": "Choisir le ton",
-        "tone_help": "Choisissez un ton calme ou de plainte formelle.",
-        "about": "À propos de cet outil",
-        "about_text": "Générez facilement des lettres professionnelles liées aux soins.",
-        "letter_category": "Sélectionnez la catégorie de lettre",
-        "category_help": "Choisissez la catégorie de votre problème.",
-        "specific_issue": "Sélectionnez le problème spécifique",
-        "issue_help": "Choisissez le problème détaillé.",
-        "your_details": "Vos coordonnées",
-        "full_name": "Nom complet",
-        "contact_info": "Informations de contact",
-        "generate": "Générer la lettre",
-        "name_warning": "Veuillez saisir votre nom.",
-        "generating": "Génération de votre lettre...",
-        "generated_letter": "Lettre générée",
-        "download_txt": "Télécharger en .txt",
-        "download_doc": "Télécharger en .doc",
-        "error_message": "Erreur:",
-        "error_help": "Vérifiez vos entrées ou votre connexion."
-    }
+    "English": "en",
+    "Spanish": "es",
+    "French": "fr",
+    "German": "de",
+    "Italian": "it",
+    "Portuguese": "pt",
+    "Dutch": "nl",
+    "Russian": "ru",
+    "Chinese (Simplified)": "zh",
+    "Japanese": "ja",
+    "Arabic": "ar"
 }
 
-def get_text(key):
-    return LANGUAGES[st.session_state.language].get(key, key)
+# --- SESSION STATE INITIALIZATION ---
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "language" not in st.session_state:
+    st.session_state.language = "English"
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
+if "gdpr_consent" not in st.session_state:
+    st.session_state.gdpr_consent = False
 
-# --- GDPR CONSENT ---
-if not st.session_state.gdpr_consent:
-    st.sidebar.subheader(get_text("gdpr_title"))
-    with st.sidebar.expander("GDPR Info", expanded=True):
-        st.write(get_text("gdpr_info"))
-    if st.sidebar.checkbox(get_text("consent_check")):
-        st.session_state.gdpr_consent = True
-        st.experimental_rerun()
-    else:
-        st.sidebar.warning(get_text("consent_warning"))
-    st.stop()
+# --- LICENSE KEY AUTHENTICATION ---
+def authenticate(license_key: str) -> bool:
+    """Check if license key is valid"""
+    try:
+        with open(VALID_KEYS_FILE, "r") as f:
+            valid_keys = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        valid_keys = []
+    
+    return license_key in valid_keys
 
-# --- ABOUT PAGE ---
-if tab == "About":
-    st.title(get_text("about"))
-    st.write(get_text("about_text"))
-    st.info("Supports English, Español & Français — 2025 UI")
-    st.stop()
-
-# --- GENERATE PAGE HEADER ---
-st.title("💌 " + get_text("title"))
-st.caption("Modern Care Letter Generator — 2025 Edition")
-
-# --- SIDEBAR OPTIONS ---
-st.sidebar.selectbox("🌐 Language", list(LANGUAGES.keys()), key="language")
-st.sidebar.radio(get_text("letter_tone"), ("Standard", "Serious Formal Complaint"), key="tone")
-
-# --- LETTER TEMPLATES ---
-letter_structure = {
+# --- COMPLETE LETTER STRUCTURE ---
+LETTER_STRUCTURE = {
     "Care Complaint Letter": {
         "Neglect or injury": [
             "Who was harmed?",
@@ -222,7 +92,7 @@ letter_structure = {
             "Have you spoken to the discharge team?"
         ],
         "Challenge capacity assessment": [
-            "What is your loved one’s diagnosis?",
+            "What is your loved one's diagnosis?",
             "Why do you believe the assessment is flawed?",
             "What outcome are you seeking?",
             "Have you discussed this with professionals already?"
@@ -260,7 +130,7 @@ letter_structure = {
             "Are you requesting a Fast Track?"
         ],
         "Referral for reassessment": [
-            "What has changed in the person’s condition?",
+            "What has changed in the person's condition?",
             "When was the last assessment?",
             "What result are you hoping for?"
         ]
@@ -393,67 +263,219 @@ letter_structure = {
         ],
         "Dispute funding refusal (LA/NHS)": [
             "What funding was denied?",
-            "What is the person’s current care situation?",
+            "What is the person's current care situation?",
             "Why do you believe the refusal is unfair?",
             "Have you received a written explanation?"
         ],
         "Request carer support plan": [
             "Are you a family carer?",
             "What support are you struggling to provide?",
-            "Has a carer’s assessment ever been done?",
+            "Has a carer's assessment ever been done?",
             "What help would make a difference?"
         ]
     }
 }
 
+# --- TRANSLATION DICTIONARY ---
+TRANSLATIONS = {
+    "en": {
+        "title": "Care Quality Advocacy Letter Generator",
+        "language_select": "Select Language",
+        "license_prompt": "Enter your license key",
+        "invalid_key": "Invalid or already-used license key.",
+        "access_granted": "Access granted. Welcome.",
+        "gdpr_label": "I consent to data processing (GDPR)",
+        "gdpr_warning": "You must consent to GDPR processing to continue.",
+        "tone_label": "Select the tone for your letter:",
+        "tone_help": "Choose 'Serious Formal Complaint' if you want regulatory language and strong escalation wording.",
+        "category_label": "Choose your letter category:",
+        "subcategory_label": "Select the issue type:",
+        "questions_header": "📝 Please answer the following:",
+        "name_label": "Your Name",
+        "generate_button": "Generate Letter",
+        "result_label": "Generated Letter",
+        "error_message": "Error generating letter:",
+        "download_button": "Download Letter"
+    },
+    "es": {
+        "title": "Generador de Cartas de Defensa de la Calidad de la Atención",
+        "language_select": "Seleccionar idioma",
+        "license_prompt": "Ingrese su clave de licencia",
+        "invalid_key": "Clave de licencia inválida o ya utilizada.",
+        "access_granted": "Acceso concedido. Bienvenido.",
+        "gdpr_label": "Doy mi consentimiento para el procesamiento de datos (GDPR)",
+        "gdpr_warning": "Debe dar su consentimiento para el procesamiento de datos GDPR para continuar.",
+        "tone_label": "Seleccione el tono para su carta:",
+        "tone_help": "Elija 'Queja Formal Grave' si desea un lenguaje regulatorio y redacción de escalamiento fuerte.",
+        "category_label": "Elija la categoría de su carta:",
+        "subcategory_label": "Seleccione el tipo de problema:",
+        "questions_header": "📝 Por favor responda lo siguiente:",
+        "name_label": "Su Nombre",
+        "generate_button": "Generar Carta",
+        "result_label": "Carta Generada",
+        "error_message": "Error al generar la carta:",
+        "download_button": "Descargar Carta"
+    },
+    # Add other languages following the same pattern
+}
+
+def t(key: str) -> str:
+    """Get translation for the current language"""
+    lang_code = LANGUAGES[st.session_state.language]
+    return TRANSLATIONS.get(lang_code, {}).get(key, TRANSLATIONS["en"][key])
+
 # --- PROMPT GENERATION ---
-def generate_prompt(cat, sub, answers, user, tone):
-    intro = f"Category: {cat}\nIssue: {sub}\n\n"
-    details = "".join(f"{q}: {a}\n" for q,a in answers.items() if a)
-    tone_instr = (
-        "Use a calm, empathetic tone." if tone=="Standard"
-        else "Use a formal, assertive tone referencing regulations."
+def generate_prompt(category: str, subcategory: str, answers: Dict[str, str], user_name: str, tone: str) -> str:
+    """Generate the prompt for OpenAI based on user inputs"""
+    base_intro = (
+        f"You are an experienced care quality advocate who understands regulations in {st.session_state.language}. "
+        "Your task is to generate a formal letter that addresses a care-related concern. "
+        "The letter should be in the selected language and tone.\n\n"
     )
-    return intro + details + "\n" + tone_instr + f"\n\nSincerely,\n{user}"
 
-# --- FORM LAYOUT ---
-col1, col2 = st.columns([2,1])
-with col1:
-    category = st.selectbox(get_text("letter_category"), list(letter_structure.keys()), help=get_text("category_help"))
-    if category:
-        subcats = list(letter_structure[category].keys())
-        issue = st.selectbox(get_text("specific_issue"), subcats, help=get_text("issue_help"))
-        if issue:
-            st.markdown("---")
-            st.header(f"📝 {issue}")
-            answers = {}
-            for q in letter_structure[category][issue]:
-                answers[q] = st.text_area(q, height=120)
-            st.markdown("---")
-            st.subheader(get_text("your_details"))
-            user_name = st.text_input(get_text("full_name"))
-            contact = st.text_input(get_text("contact_info"))
-            if st.button(get_text("generate"), use_container_width=True):
-                if not user_name:
-                    st.warning(get_text("name_warning"))
-                else:
-                    with st.spinner(get_text("generating")):
-                        prompt = generate_prompt(category, issue, answers, user_name, st.session_state.tone)
-                        response = client.chat.completions.create(
-                            model="gpt-4o-mini",
-                            messages=[{"role":"user","content":prompt}],
-                            temperature=0.5
-                        )
-                        letter = response.choices[0].message.content
-                    st.success("Done!")
-                    with stylable_container(css_styles="{background:#FFF;padding:1rem;border-radius:8px;}"):
-                        st.write(letter)
-                    d1, d2 = st.columns(2)
-                    d1.download_button(get_text("download_txt"), letter, file_name="care_letter.txt")
-                    d2.download_button(get_text("download_doc"), letter, file_name="care_letter.doc")
-with col2:
-    st.metric(label="Version", value="2025.2")
-    st.metric(label="Model", value="GPT-4o-Mini")
-    st.metric(label="Locale", value=st.session_state.language)
+    context_block = f"Language: {st.session_state.language}\nLetter Category: {category}\nIssue Type: {subcategory}\n\n"
 
+    summary_block = ""
+    for q, a in answers.items():
+        if a.strip():
+            summary_block += f"{q}\n{a.strip()}\n\n"
+
+    if tone == "Serious Formal Complaint":
+        action_block = (
+            "Please write this letter in a direct, formal, and legally aware tone. The letter should:\n"
+            "- Be factual and to the point\n"
+            "- Reflect concern for well-being\n"
+            "- State concern for care standards explicitly\n"
+            "- Use respectful yet assertive language\n"
+            "- Reference relevant regulations where appropriate\n"
+            "- Mention escalation options professionally\n\n"
+        )
+    else:
+        action_block = (
+            "Please write this letter in a calm, assertive tone. The letter should:\n"
+            "- Clearly explain the concern\n"
+            "- Highlight any risks\n"
+            "- Request investigation and response\n"
+            "- Mention any reports already made\n"
+            "- Specify expected response timeframe\n"
+            "- Close with readiness to escalate if needed\n\n"
+        )
+
+    closing = f"\nSincerely,\n{user_name}"
     
+    return base_intro + context_block + summary_block + action_block + closing
+
+# --- MAIN APP ---
+def main():
+    st.set_page_config(page_title=t("title"), layout="wide")
+    
+    # Language selector at the top
+    st.session_state.language = st.sidebar.selectbox(
+        t("language_select"),
+        list(LANGUAGES.keys()),
+        index=list(LANGUAGES.keys()).index(st.session_state.language)
+    )
+    
+    st.title(t("title"))
+    
+    # Authentication
+    if not st.session_state.authenticated:
+        license_key = st.text_input(t("license_prompt"), type="password")
+        
+        if st.button("Submit"):
+            if authenticate(license_key):
+                st.session_state.authenticated = True
+                st.success(t("access_granted"))
+                st.experimental_rerun()
+            else:
+                st.error(t("invalid_key"))
+        return
+    
+    # GDPR Consent
+    st.session_state.gdpr_consent = st.checkbox(t("gdpr_label"))
+    if not st.session_state.gdpr_consent:
+        st.warning(t("gdpr_warning"))
+        return
+    
+    # Tone selection
+    tone = st.radio(
+        t("tone_label"),
+        ("Standard", "Serious Formal Complaint"),
+        help=t("tone_help")
+    )
+    
+    # Letter category selection
+    selected_category = st.selectbox(
+        t("category_label"),
+        list(LETTER_STRUCTURE.keys())
+    )
+    
+    if selected_category:
+        subcategories = list(LETTER_STRUCTURE[selected_category].keys())
+        selected_subcategory = st.selectbox(
+            t("subcategory_label"),
+            subcategories
+        )
+        
+        if selected_subcategory:
+            st.markdown("---")
+            st.subheader(t("questions_header"))
+            
+            # Store answers in session state
+            if "answers" not in st.session_state:
+                st.session_state.answers = {}
+            
+            # Create form for questions
+            with st.form("letter_form"):
+                for question in LETTER_STRUCTURE[selected_category][selected_subcategory]:
+                    st.session_state.answers[question] = st.text_area(
+                        question,
+                        value=st.session_state.answers.get(question, "")
+                    )
+                
+                st.session_state.user_name = st.text_input(
+                    t("name_label"),
+                    value=st.session_state.user_name
+                )
+                
+                submitted = st.form_submit_button(t("generate_button"))
+                
+                if submitted:
+                    with st.spinner("Generating your letter..."):
+                        try:
+                            client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+                            
+                            prompt = generate_prompt(
+                                selected_category,
+                                selected_subcategory,
+                                st.session_state.answers,
+                                st.session_state.user_name,
+                                tone
+                            )
+                            
+                            response = client.chat.completions.create(
+                                model="gpt-4",
+                                messages=[{"role": "user", "content": prompt}],
+                                temperature=0.3 if tone == "Serious Formal Complaint" else 0.7
+                            )
+                            
+                            generated_letter = response.choices[0].message.content
+                            st.text_area(
+                                t("result_label"),
+                                generated_letter,
+                                height=400
+                            )
+                            
+                            # Add download button
+                            st.download_button(
+                                label=t("download_button"),
+                                data=generated_letter,
+                                file_name=f"care_letter_{selected_category.replace(' ', '_')}.txt",
+                                mime="text/plain"
+                            )
+                            
+                        except Exception as e:
+                            st.error(f"{t('error_message')} {str(e)}")
+
+if __name__ == "__main__":
+    main()
