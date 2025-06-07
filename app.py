@@ -244,8 +244,7 @@ if not st.session_state.authenticated:
             if license_key in valid_keys:
                 st.session_state.authenticated = True
                 st.markdown(f"<div class='success-box'>{get_text('access_granted')}</div>", unsafe_allow_html=True)
-              st.rerun()
-
+                st.experimental_rerun()
             else:
                 st.markdown(f"<div class='warning-box'>{get_text('invalid_key')}</div>", unsafe_allow_html=True)
 
@@ -272,9 +271,59 @@ if not st.session_state.gdpr_consent:
 # --- OPENAI SETUP ---
 client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
-# --- LETTER STRUCTURE (same as before) ---
+# --- LETTER STRUCTURE ---
 letter_structure = {
-    # ... [keep the same letter structure dictionary as in your original code] ...
+    "Complaint": {
+        "Poor Quality Care": [
+            "What specific issues have you observed with the care?",
+            "How long has this been going on?",
+            "What impact has this had on the care recipient?"
+        ],
+        "Lack of Communication": [
+            "What communication problems have you experienced?",
+            "How have you tried to resolve this previously?",
+            "What information are you seeking?"
+        ],
+        "Safety Concerns": [
+            "Describe the safety issues you've observed",
+            "How urgent is this situation?",
+            "Have you reported this to anyone else?"
+        ]
+    },
+    "Advocacy": {
+        "Request for Assessment": [
+            "Why do you believe an assessment is needed?",
+            "What changes have you noticed that require assessment?",
+            "What outcome are you hoping for?"
+        ],
+        "Appeal a Decision": [
+            "What decision are you appealing?",
+            "Why do you disagree with this decision?",
+            "What supporting evidence do you have?"
+        ],
+        "Request for Support": [
+            "What type of support are you requesting?",
+            "Why is this support needed now?",
+            "How would this support improve the situation?"
+        ]
+    },
+    "Notification": {
+        "Change in Circumstances": [
+            "What has changed in the care situation?",
+            "When did this change occur?",
+            "What adjustments are needed?"
+        ],
+        "Formal Complaint Escalation": [
+            "Who have you complained to previously?",
+            "Why are you unsatisfied with their response?",
+            "What resolution are you seeking?"
+        ],
+        "Positive Feedback": [
+            "What specifically did the care provider do well?",
+            "How has this positively impacted the care recipient?",
+            "Would you like to recognize any specific staff members?"
+        ]
+    }
 }
 
 # --- IMPROVED PROMPT GENERATION WITH MULTILINGUAL SUPPORT ---
@@ -341,7 +390,7 @@ with st.sidebar:
         "Language / Idioma / Langue",
         list(LANGUAGES.keys()),
         index=list(LANGUAGES.keys()).index(st.session_state.language)
-    )
+    
     tone = st.radio(
         get_text("letter_tone"),
         ("Standard", "Serious Formal Complaint"),
