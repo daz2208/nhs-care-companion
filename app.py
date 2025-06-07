@@ -1,340 +1,306 @@
+# --- Elite-Level NHS Care Companion + Letter Generator ---
+# Fully Integrated Streamlit App with 4 Modes:
+# 1. Clinical Documentation
+# 2. Patient Education
+# 3. Voice Notes
+# 4. Advocacy & Complaint Letter Generator
+
 import streamlit as st
-from dotenv import load_dotenv
 import os
-import openai
-from fpdf import FPDF
 import json
-import speech_recognition as sr
+import openai
+from dotenv import load_dotenv
+from fpdf import FPDF
 from datetime import datetime
+from io import BytesIO
+import speech_recognition as sr
 from functools import lru_cache
 
-# Load environment variables
+# --- Load environment variables ---
 load_dotenv()
 
+# --- Page Configuration & Custom Styling ---
+st.set_page_config(page_title="NHS Care Companion", page_icon="🩺", layout="wide")
+st.markdown(
+    """
+    <style>
+    .sidebar .sidebar-content { background-color: #f0f4f8; }
+    .stButton>button { border-radius: 8px; padding: 0.5rem 1rem; }
+    .stDownloadButton>button { background-color: #005eb8; color: white; }
+    </style>
+    """, unsafe_allow_html=True
+)
+
 # --- Constants & Configurations ---
-VALID_KEYS_FILE = os.getenv("VALID_KEYS_FILE", "valid_keys.json")
+VALID_KEYS_FILE = "valid_keys.json"
 NHS_TRUSTS = [
     "Barts Health NHS Trust",
     "Manchester University NHS Foundation Trust",
     "Birmingham Women's and Children's NHS FT",
+    "Royal Wolverhampton NHS Trust",
+    "Walsall Healthcare NHS Trust",
+    "Sandwell and West Birmingham Hospitals NHS Trust",
+    "University Hospitals Birmingham NHS Foundation Trust",
+    "Dudley Group NHS Foundation Trust",
+    "Shrewsbury and Telford Hospital NHS Trust",
+    "South Staffordshire and Shropshire Healthcare NHS Foundation Trust"
 ]
 CCG_LIST = [
+    "NHS Black Country ICB",
+    "NHS Birmingham and Solihull ICB",
+    "NHS Staffordshire and Stoke-on-Trent ICB",
     "NHS North West London CCG",
-    "NHS Bristol, North Somerset and South Gloucestershire CCG",
+    "NHS Bristol, North Somerset and South Gloucestershire CCG"
 ]
 
+# --- Full Letter Templates (LETTER_STRUCTURE is assumed to be defined earlier in your full code) ---
+# Replace this placeholder with the complete LETTER_STRUCTURE from your working version
 LETTER_STRUCTURE = {
-    "Care Home Complaint": {
-        "Neglect": [
-            "Describe what happened.",
-            "Where and when did the neglect occur?",
-            "What was the impact on the person affected?"
+    "Care Complaint Letter": {
+        "Neglect or injury": [
+            "Who was harmed?",
+            "Where did it happen?",
+            "What happened?",
+            "What was the result?",
+            "Have you raised this already?"
         ],
-        "Medication Errors": [
-            "What medication error occurred?",
-            "Was it missed, incorrect, or late?",
-            "What were the consequences?"
+        "Medication errors": [
+            "What medication issue occurred — wrong dose, missed dose, or something else?",
+            "Where and when did this happen, if you know?",
+            "Who was affected by the error?",
+            "What was done about it at the time, if anything?",
+            "What do you feel should happen now as a result?"
         ],
-        "Poor Hygiene Standards": [
-            "Describe the hygiene concern.",
-            "Where did you see it?",
-            "Has this been reported before?"
-        ],
-        "Staff Behaviour": [
-            "What behaviour did you witness?",
-            "Was it directed at a specific person?",
-            "When and where did this occur?"
-        ],
-        "Lack of Activities": [
-            "Are meaningful activities available?",
-            "Have you raised this with staff or management?",
-            "What difference would activities make?"
+        "Staff conduct": [
+            "What happened?",
+            "Who was involved?",
+            "Was this one-time or ongoing?",
+            "What was the impact?",
+            "Have you spoken to the provider?"
         ]
     },
-    "Hospital Discharge": {
-        "Unsafe Discharge": [
-            "Describe the discharge situation.",
-            "Was the home environment assessed?",
-            "What happened as a result of the discharge?"
+    "Family Advocacy Letter": {
+        "Request a meeting": [
+            "Who do you want to meet with?",
+            "What is the purpose of the meeting?",
+            "Any preferred dates/times?",
+            "Is this urgent or routine?"
         ],
-        "No Equipment Provided": [
-            "What equipment was missing?",
-            "Was it promised or expected?",
-            "Did this cause any risk or delay?"
-        ],
-        "Poor Discharge Planning": [
-            "Who was involved in discharge planning?",
-            "Were family or carers consulted?",
-            "Was a care package arranged?"
+        "Disagree with discharge": [
+            "Who is being discharged?",
+            "What are your concerns?",
+            "What support is missing?",
+            "Have you spoken to the discharge team?"
         ]
     },
-    "Home Care Services": {
-        "Missed Calls": [
-            "How many care visits were missed?",
-            "Over what timeframe?",
-            "What was the impact on the person receiving care?"
-        ],
-        "Late Visits": [
-            "How often are carers arriving late?",
-            "Is this affecting medication, meals, or routines?",
-            "Have you raised this with the care agency?"
-        ],
-        "Rushed Care": [
-            "Describe how care feels rushed.",
-            "Are tasks being skipped or done poorly?",
-            "Has this changed over time?"
-        ],
-        "Inconsistent Staff": [
-            "Are too many different carers attending?",
-            "Does this cause confusion, anxiety or mistakes?",
-            "Have you requested consistency?"
+    "Referral Support Letter": {
+        "Request community support": [
+            "What support do you believe is needed?",
+            "Who is the individual needing it?",
+            "Have they had this support before?",
+            "Why now?"
         ]
     },
-    "GP and Health Services": {
-        "Difficulty Getting Appointments": [
-            "Describe how hard it is to get an appointment.",
-            "Is it urgent care being delayed?",
-            "Has this affected health outcomes?"
-        ],
-        "Poor Communication": [
-            "Who is not communicating well?",
-            "What information was not passed on or explained?",
-            "Has this caused errors or stress?"
-        ],
-        "Medication Not Reviewed": [
-            "How long since the last review?",
-            "Have there been any side effects or concerns?",
-            "Have you requested a review?"
+    "Thank You & Positive Feedback": {
+        "Praise for a staff member": [
+            "What did they do well?",
+            "When and where?",
+            "What impact did it have?",
+            "Do you want management to be notified?"
         ]
     },
-    "Local Authority Social Care": {
-        "Assessment Delays": [
-            "How long have you waited for an assessment?",
-            "What support is being delayed as a result?",
-            "Have you followed up or chased this?"
-        ],
-        "Unclear Eligibility Decisions": [
-            "What decision was made?",
-            "Was a clear reason given?",
-            "Did you receive written confirmation?"
-        ],
-        "Poor Quality of Social Work Support": [
-            "What support has been lacking?",
-            "Was your social worker responsive and helpful?",
-            "What outcome were you hoping for?"
+    "Hospital & Discharge": {
+        "Discharge objection": [
+            "What discharge is being planned?",
+            "Why is it not safe/suitable?",
+            "Have you communicated with the ward?",
+            "What would be a better plan?"
         ]
     },
-    "Continuing Healthcare (CHC)": {
-        "Assessment Delays": [
-            "When was CHC requested?",
-            "Has the assessment taken place?",
-            "What has happened while waiting?"
-        ],
-        "Unclear Outcome or Decision": [
-            "What were you told about the outcome?",
-            "Was it explained in writing?",
-            "Do you agree with the decision?"
-        ],
-        "Funding Removed Without Explanation": [
-            "When was funding stopped?",
-            "Were you given notice or justification?",
-            "What impact has this had?"
+    "Other Letters": {
+        "Safeguarding concern": [
+            "What concern do you want to report?",
+            "Who is at risk?",
+            "When and where did this happen?",
+            "Have you contacted the safeguarding team?"
         ]
     },
-    "Safeguarding and Protection": {
-        "Concerns Ignored": [
-            "What safeguarding concern did you report?",
-            "When and how did you raise it?",
-            "What happened next?"
-        ],
-        "No Feedback After Reporting": [
-            "Was a safeguarding referral made?",
-            "Have you heard anything since?",
-            "Do you feel the concern was taken seriously?"
+    "Escalation & Regulatory": {
+        "Raise formal concern with CQC": [
+            "What concern do you want CQC to investigate?",
+            "Where is the setting and who is affected?",
+            "Is this a single incident or ongoing pattern?",
+            "Have you tried resolving this locally first?"
         ]
     },
-    "Advocacy Requests": {
-        "Need Support for Meeting": [
-            "What is the meeting about?",
-            "When is it scheduled?",
-            "What support do you need from an advocate?"
-        ],
-        "Help Understanding Care Decisions": [
-            "What decisions are being made?",
-            "Are you confused or unsure of options?",
-            "Would written or verbal advocacy help most?"
+    "Delays & Practical Barriers": {
+        "Chase delayed referral or appointment": [
+            "Who is waiting for what (referral/test/support)?",
+            "How long has the delay been?",
+            "What impact is the delay having?",
+            "Have you contacted the provider already?"
         ]
     }
 }
+    # Continue with full letter structure as needed...
+}
 
+# --- Utility Functions ---
 @lru_cache(maxsize=None)
 def load_valid_keys(path: str) -> set:
     try:
         with open(path, 'r') as f:
             return set(json.load(f))
-    except (FileNotFoundError, json.JSONDecodeError):
+    except Exception:
         return set()
 
-def authenticate_user(key: str) -> bool:
-    keys = load_valid_keys(VALID_KEYS_FILE)
-    return key in keys
+def authenticate_user():
+    if 'authenticated' not in st.session_state:
+        st.session_state.authenticated = False
+    if not st.session_state.authenticated:
+        key = st.sidebar.text_input("🔐 License Key", type="password")
+        valid = load_valid_keys(VALID_KEYS_FILE)
+        if key and key in valid:
+            st.session_state.authenticated = True
+            st.sidebar.success("Access granted.")
+        else:
+            st.sidebar.warning("Invalid or missing key.")
+            st.stop()
 
-def save_draft(document_type: str, content: str) -> str:
-    if 'drafts' not in st.session_state:
-        st.session_state.drafts = {}
+def consent_check():
+    if not st.sidebar.checkbox("I consent to data processing (GDPR)"):
+        st.sidebar.warning("Consent required.")
+        st.stop()
+
+def save_draft(doc_type: str, content: str) -> str:
+    drafts = st.session_state.setdefault('drafts', {})
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    draft_key = f"{document_type}_{timestamp}"
-    st.session_state.drafts[draft_key] = content
-    return draft_key
+    dk = f"{doc_type}_{timestamp}"
+    drafts[dk] = content
+    return dk
 
-def load_drafts_sidebar() -> None:
+def load_drafts_sidebar():
     drafts = st.session_state.get('drafts', {})
     if drafts:
-        st.sidebar.subheader("Your Drafts")
-        for key, content in drafts.items():
-            if st.sidebar.button(key):
-                st.session_state.current_draft = content
+        st.sidebar.subheader("📄 Your Drafts")
+        for k in drafts:
+            if st.sidebar.button(k, key=k):
+                st.session_state.current_draft = drafts[k]
 
 def transcribe_voice(duration: int = 10) -> str:
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        st.info(f"Recording for {duration} seconds...")
+        st.info(f"Recording for {duration}s...")
         audio = recognizer.listen(source, phrase_time_limit=duration)
     try:
-        return recognizer.recognize_google(audio, language="en-GB")
-    except sr.UnknownValueError:
-        st.error("Could not understand audio")
-    except sr.RequestError as e:
-        st.error(f"API error: {e}")
-    return ""
+        return recognizer.recognize_google(audio, language='en-GB')
+    except Exception as e:
+        st.error(f"Transcription error: {e}")
+        return ""
 
-def generate_pdf_from_markdown(title: str, markdown_content: str) -> bytes:
+def generate_pdf(title: str, content: str) -> bytes:
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Arial", 'B', 14)
     pdf.cell(0, 10, title, ln=True, align='C')
-    pdf.ln(10)
-    for line in markdown_content.splitlines():
+    pdf.ln(8)
+    pdf.set_font("Arial", size=12)
+    for line in content.splitlines():
         pdf.multi_cell(0, 8, line)
     return pdf.output(dest='S').encode('latin-1')
 
-def call_openai(prompt: str, model: str = "gpt-3.5-turbo", temperature: float = 0.5) -> str:
-    client = openai.OpenAI()
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=temperature
-    )
-    return response.choices[0].message.content
+def generate_prompt(category, subcategory, answers, user_name, tone):
+    ctx = f"Category: {category}\nIssue: {subcategory}\n"
+    summary = "\n".join(f"{q}: {a}" for q,a in answers.items() if a.strip())
+    if tone == "Serious Formal Complaint":
+        style = "formal, cite CQC standards and duty of care"
+        temp = 0.3
+    else:
+        style = "calm, assertive"
+        temp = 0.7
+    closing = f"\n\nSincerely,\n{user_name}"
+    prompt = f"You are an experienced health advocate. {ctx}{summary}\nWrite in a {style} tone.{closing}"
+    return prompt, temp
 
-def clinical_documentation_mode():
-    st.header("\U0001F3E5 Clinical Documentation")
-    nhs_trust = st.selectbox("NHS Trust/CCG", NHS_TRUSTS + CCG_LIST)
-    nhs_number = st.text_input("NHS Number (optional)")
-    specialty = "Geriatrics"
-    doc_type = "Initial Assessment"
-    template = {
-        "prompt": "Write an initial assessment for a geriatric patient including presenting complaint, history, medication, and next steps."
-    }
-    if st.button("\U0001F399️ Record Voice Note"):
-        transcription = transcribe_voice()
-        st.session_state.last_voice = transcription
-        st.text_area("Voice Transcription", value=transcription, height=150)
-    details = st.text_area("Clinical Details", value=st.session_state.get('current_draft', ''), height=200)
+# --- Mode Functions ---
+def clinical_documentation():
+    st.header("🏥 Clinical Documentation")
+    trust = st.selectbox("NHS Trust/CCG", NHS_TRUSTS + CCG_LIST)
+    nhs_num = st.text_input("NHS Number")
+    details = st.text_area("Clinical Details", height=200, value=st.session_state.get('current_draft', ''))
+    if st.button("🎤 Record Voice Note"):
+        st.session_state.voice = transcribe_voice()
+    if st.session_state.get('voice'):
+        st.text_area("Voice Transcript", value=st.session_state.voice, height=150)
     if st.button("Generate Document"):
-        if not nhs_number:
-            st.warning("Please include NHS Number for geriatric records.")
-        else:
-            prompt = f"NHS Trust / CCG: {nhs_trust}\nTemplate: {template['prompt']}\nDetails: {details}"
-            with st.spinner("Generating document..."):
-                doc = call_openai(prompt)
-                key = save_draft(f"{specialty}_{doc_type}", doc)
-                st.success(f"Draft saved: {key}")
-                st.markdown(doc)
+        prompt = f"Trust: {trust}\nNHS Number: {nhs_num}\nDetails: {details}"
+        with st.spinner("Generating document..."):
+            rsp = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", messages=[{"role":"user","content":prompt}], temperature=0.5
+            )
+            doc = rsp.choices[0].message.content
+        key = save_draft("ClinicalDoc", doc)
+        st.success(f"Saved draft: {key}")
+        st.markdown(doc)
 
-def patient_education_mode():
-    st.header("\U0001F4DA Patient Education")
+def patient_education():
+    st.header("📚 Patient Education")
     topic = st.text_input("Health Topic")
     level = st.select_slider("Reading Level", options=["Simple", "Standard", "Detailed"])
     if st.button("Generate Info Sheet"):
-        age_map = {"Simple": 8, "Standard": 12, "Detailed": 16}
-        reading_age = age_map[level]
-        prompt = (
-            f"Create NHS-style patient info about {topic} for reading age {reading_age}: "
-            "include key facts, when to seek help, self-care tips, UK helplines."
-        )
-        with st.spinner("Generating..."):
-            markdown = call_openai(prompt)
-            pdf_bytes = generate_pdf_from_markdown(f"NHS Info: {topic}", markdown)
-            st.markdown(markdown)
-            st.download_button(
-                "Download PDF",
-                data=pdf_bytes,
-                file_name=f"nhs_{topic.replace(' ', '_')}.pdf",
-                mime='application/pdf'
+        age = {"Simple":8,"Standard":12,"Detailed":16}[level]
+        prompt = f"Create NHS-style info on {topic} for reading age {age}: include key facts, self-care tips, UK helplines." 
+        with st.spinner("Generating info sheet..."):
+            rsp = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", messages=[{"role":"user","content":prompt}], temperature=0.5
             )
+            sheet = rsp.choices[0].message.content
+        st.markdown(sheet)
+        pdf = generate_pdf(f"Info: {topic}", sheet)
+        st.download_button("Download PDF", data=pdf, file_name=f"info_{topic.replace(' ','_')}.pdf")
 
-def advocacy_letters_mode():
-    st.header("✉️ Advocacy & Complaints")
-    category = st.selectbox("Letter Category", list(LETTER_STRUCTURE.keys()))
-    issue = st.selectbox("Issue Type", list(LETTER_STRUCTURE.get(category, {})))
-    answers = {}
-    if issue:
-        st.subheader("Provide Details:")
-        for q in LETTER_STRUCTURE[category][issue]:
-            answers[q] = st.text_area(q)
-    user_name = st.text_input("Your Name")
-    tone = st.radio("Tone", ["Standard", "Formal"])
+def voice_notes():
+    st.header("🎙️ Voice Notes")
+    if st.button("Record 10s"): st.session_state.voice = transcribe_voice()
+    transcript = st.session_state.get('voice', '')
+    if transcript:
+        st.text_area("Transcript", value=transcript, height=150)
+        if st.button("Save Transcript"):
+            key = save_draft("VoiceNote", transcript)
+            st.success(f"Saved: {key}")
+
+def advocacy_letters():
+    st.header("✉️ Advocacy & Complaint Letters")
+    category = st.selectbox("Category", list(LETTER_STRUCTURE.keys()))
+    subcat = st.selectbox("Issue", list(LETTER_STRUCTURE[category].keys()))
+    answers = {q: st.text_area(q) for q in LETTER_STRUCTURE[category][subcat]}
+    name = st.text_input("Your Name")
+    tone = st.radio("Tone", ["Standard", "Serious Formal Complaint"])
     if st.button("Generate Letter"):
-        intro = "You are an experienced care quality advocate."
-        summary = "\n".join(f"{q}: {a}" for q, a in answers.items())
-        style = "direct, formal" if tone == "Formal" else "calm, assertive"
-        prompt = f"{intro}\nCategory: {category}\nIssue: {issue}\n{summary}\nWrite in a {style} tone. End with Sincerely, {user_name}."
-        with st.spinner("Writing letter..."):
-            letter = call_openai(prompt, temperature=0.5)
-            st.text_area("Letter Preview", value=letter, height=300)
+        prompt, temp = generate_prompt(category, subcat, answers, name, tone)
+        with st.spinner("Generating letter..."):
+            rsp = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo", messages=[{"role":"user","content":prompt}], temperature=temp
+            )
+            letter = rsp.choices[0].message.content
+        key = save_draft("Letter", letter)
+        st.success(f"Saved draft: {key}")
+        st.text_area("Generated Letter", value=letter, height=300)
 
+# --- App Entry Point ---
 def main():
-    if 'authenticated' not in st.session_state:
-        st.session_state.authenticated = False
-    if not st.session_state.authenticated:
-        key = st.text_input("Enter License Key", type="password")
-        if key and authenticate_user(key):
-            st.session_state.authenticated = True
-            st.success("Access granted.")
-        else:
-            st.warning("Invalid or missing license key.")
-            return
-    consent = st.sidebar.checkbox("I consent to data processing (GDPR)")
-    if not consent:
-        st.sidebar.warning("Consent required to proceed.")
-        return
-    st.sidebar.title("NHS Care Companion")
+    authenticate_user()
+    consent_check()
     load_drafts_sidebar()
-    mode = st.sidebar.radio("Mode", [
-        "Clinical Documentation",
-        "Patient Education",
-        "Voice Notes",
-        "Advocacy Letters"
-    ])
-    if mode == "Clinical Documentation":
-        clinical_documentation_mode()
+    mode = st.sidebar.radio("Mode", ["Clinical Docs", "Patient Education", "Voice Notes", "Advocacy Letters"] )
+    if mode == "Clinical Docs":
+        clinical_documentation()
     elif mode == "Patient Education":
-        patient_education_mode()
+        patient_education()
     elif mode == "Voice Notes":
-        st.header("\U0001F399️ Voice Notes")
-        if st.button("Record"):
-            transcription = transcribe_voice()
-            st.session_state.last_voice = transcription
-            st.write(transcription)
-        if st.button("Save Note"):
-            save_draft("VoiceNote", st.session_state.get('last_voice', ''))
-            st.success("Saved.")
+        voice_notes()
     else:
-        advocacy_letters_mode()
+        advocacy_letters()
 
 if __name__ == "__main__":
     main()
-
-       
-      
