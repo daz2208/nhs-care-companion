@@ -36,9 +36,147 @@ UK_SCENARIO_TEMPLATES = {
 LETTER_STRUCTURE = {
     "Care Home Complaint": {
         "Neglect": [
-            "Describe what happened",
-            "When and where did this occur?",
-            "What was the outcome or impact?",
+            "Describe what happened.",
+            "Where and when did the neglect occur?",
+            "What was the impact on the person affected?"
+        ],
+        "Medication Errors": [
+            "What medication error occurred?",
+            "Was it missed, incorrect, or late?",
+            "What were the consequences?"
+        ],
+        "Poor Hygiene Standards": [
+            "Describe the hygiene concern.",
+            "Where did you see it?",
+            "Has this been reported before?"
+        ],
+        "Staff Behaviour": [
+            "What behaviour did you witness?",
+            "Was it directed at a specific person?",
+            "When and where did this occur?"
+        ],
+        "Lack of Activities": [
+            "Are meaningful activities available?",
+            "Have you raised this with staff or management?",
+            "What difference would activities make?"
+        ]
+    },
+    "Hospital Discharge": {
+        "Unsafe Discharge": [
+            "Describe the discharge situation.",
+            "Was the home environment assessed?",
+            "What happened as a result of the discharge?"
+        ],
+        "No Equipment Provided": [
+            "What equipment was missing?",
+            "Was it promised or expected?",
+            "Did this cause any risk or delay?"
+        ],
+        "Poor Discharge Planning": [
+            "Who was involved in discharge planning?",
+            "Were family or carers consulted?",
+            "Was a care package arranged?"
+        ]
+    },
+    "Home Care Services": {
+        "Missed Calls": [
+            "How many care visits were missed?",
+            "Over what timeframe?",
+            "What was the impact on the person receiving care?"
+        ],
+        "Late Visits": [
+            "How often are carers arriving late?",
+            "Is this affecting medication, meals, or routines?",
+            "Have you raised this with the care agency?"
+        ],
+        "Rushed Care": [
+            "Describe how care feels rushed.",
+            "Are tasks being skipped or done poorly?",
+            "Has this changed over time?"
+        ],
+        "Inconsistent Staff": [
+            "Are too many different carers attending?",
+            "Does this cause confusion, anxiety or mistakes?",
+            "Have you requested consistency?"
+        ]
+    },
+    "GP and Health Services": {
+        "Difficulty Getting Appointments": [
+            "Describe how hard it is to get an appointment.",
+            "Is it urgent care being delayed?",
+            "Has this affected health outcomes?"
+        ],
+        "Poor Communication": [
+            "Who is not communicating well?",
+            "What information was not passed on or explained?",
+            "Has this caused errors or stress?"
+        ],
+        "Medication Not Reviewed": [
+            "How long since the last review?",
+            "Have there been any side effects or concerns?",
+            "Have you requested a review?"
+        ]
+    },
+    "Local Authority Social Care": {
+        "Assessment Delays": [
+            "How long have you waited for an assessment?",
+            "What support is being delayed as a result?",
+            "Have you followed up or chased this?"
+        ],
+        "Unclear Eligibility Decisions": [
+            "What decision was made?",
+            "Was a clear reason given?",
+            "Did you receive written confirmation?"
+        ],
+        "Poor Quality of Social Work Support": [
+            "What support has been lacking?",
+            "Was your social worker responsive and helpful?",
+            "What outcome were you hoping for?"
+        ]
+    },
+    "Continuing Healthcare (CHC)": {
+        "Assessment Delays": [
+            "When was CHC requested?",
+            "Has the assessment taken place?",
+            "What has happened while waiting?"
+        ],
+        "Unclear Outcome or Decision": [
+            "What were you told about the outcome?",
+            "Was it explained in writing?",
+            "Do you agree with the decision?"
+        ],
+        "Funding Removed Without Explanation": [
+            "When was funding stopped?",
+            "Were you given notice or justification?",
+            "What impact has this had?"
+        ]
+    },
+    "Safeguarding and Protection": {
+        "Concerns Ignored": [
+            "What safeguarding concern did you report?",
+            "When and how did you raise it?",
+            "What happened next?"
+        ],
+        "No Feedback After Reporting": [
+            "Was a safeguarding referral made?",
+            "Have you heard anything since?",
+            "Do you feel the concern was taken seriously?"
+        ]
+    },
+    "Advocacy Requests": {
+        "Need Support for Meeting": [
+            "What is the meeting about?",
+            "When is it scheduled?",
+            "What support do you need from an advocate?"
+        ],
+        "Help Understanding Care Decisions": [
+            "What decisions are being made?",
+            "Are you confused or unsure of options?",
+            "Would written or verbal advocacy help most?"
+        ]
+    }
+}
+
         ]
     }
 }
