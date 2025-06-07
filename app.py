@@ -134,7 +134,8 @@ def clinical_documentation_mode():
         if specialty == "Geriatrics" and not nhs_number:
             st.warning("Please include NHS Number for geriatric records.")
         else:
-            prompt = f"NHS Trust / CCG: {nhs_trust}
+           prompt = f"NHS Trust / CCG: {nhs_trust}\\nTemplate: {template['prompt']}\\nDetails: {details}"
+
 Template: {template['prompt']}
 Details: {details}"
             with st.spinner("Generating document..."):
