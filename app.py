@@ -32,7 +32,7 @@ CCG_LIST = [
     "NHS North West London CCG",
     "NHS Bristol, North Somerset and South Gloucestershire CCG",
 ]
-# Templates stored for easy extension
+
 UK_SCENARIO_TEMPLATES = {
     "Geriatrics": {
         "Initial Assessment": {
@@ -43,6 +43,7 @@ UK_SCENARIO_TEMPLATES = {
         }
     }
 }
+
 LETTER_STRUCTURE = {
     "Care Home Complaint": {
         "Neglect": [
@@ -134,10 +135,7 @@ def clinical_documentation_mode():
         if specialty == "Geriatrics" and not nhs_number:
             st.warning("Please include NHS Number for geriatric records.")
         else:
-           prompt = f"NHS Trust / CCG: {nhs_trust}\\nTemplate: {template['prompt']}\\nDetails: {details}"
-
-Template: {template['prompt']}
-Details: {details}"
+            prompt = f"NHS Trust / CCG: {nhs_trust}\\nTemplate: {template['prompt']}\\nDetails: {details}"
             with st.spinner("Generating document..."):
                 doc = call_openai(prompt)
                 key = save_draft(f"{specialty}_{doc_type}", doc)
@@ -179,19 +177,14 @@ def advocacy_letters_mode():
     tone = st.radio("Tone", ["Standard", "Formal"])
     if st.button("Generate Letter"):
         intro = "You are an experienced care quality advocate."
-        summary = "
-".join(f"{q}: {a}" for q, a in answers.items())
+        summary = "\n".join(f"{q}: {a}" for q, a in answers.items())
         style = "direct, formal" if tone == "Formal" else "calm, assertive"
-        prompt = f"{intro}
-Category: {category}
-Issue: {issue}
-{summary}
-Write in a {style} tone. End with Sincerely, {user_name}."
+        prompt = f"{intro}\nCategory: {category}\nIssue: {issue}\n{summary}\nWrite in a {style} tone. End with Sincerely, {user_name}."
         with st.spinner("Writing letter..."):
             letter = call_openai(prompt, temperature=0.5)
             st.text_area("Letter Preview", value=letter, height=300)
 
-# --- Main Application ---
+# --- Main App ---
 def main():
     if 'authenticated' not in st.session_state:
         st.session_state.authenticated = False
