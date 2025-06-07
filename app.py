@@ -340,7 +340,7 @@ with st.sidebar:
         "Language / Idioma / Langue",
         list(LANGUAGES.keys()),
         index=list(LANGUAGES.keys()).index(st.session_state.language)
-    
+    )
     tone = st.radio(
         get_text("letter_tone"),
         ("Standard", "Serious Formal Complaint"),
