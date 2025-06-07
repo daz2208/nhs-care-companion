@@ -1,20 +1,7 @@
-import json
+# ==================== translations.py ====================
 import streamlit as st
-from openai import OpenAI
-from streamlit_extras.stylable_container import stylable_container
 
-# --- SETUP ---
-VALID_KEYS_FILE = "valid_keys.json"
-
-# Initialize session state
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if "gdpr_consent" not in st.session_state:
-    st.session_state.gdpr_consent = False
-if "language" not in st.session_state:
-    st.session_state.language = "English"
-
-# Language dictionaries
+# Multilingual UI text
 LANGUAGES = {
     "English": {
         "title": "Care Letter Generator",
@@ -157,121 +144,10 @@ LANGUAGES = {
 }
 
 def get_text(key):
-    """Helper function to get translated text"""
     return LANGUAGES[st.session_state.language].get(key, key)
 
-# --- CUSTOM CSS ---
-st.markdown("""
-    <style>
-        .main {
-            max-width: 900px;
-            padding: 2rem;
-        }
-        .header {
-            color: #2b5876;
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .subheader {
-            color: #4e4376;
-            font-size: 1.5rem;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .stButton>button {
-            background-color: #4e4376;
-            color: white;
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            border: none;
-        }
-        .stButton>button:hover {
-            background-color: #2b5876;
-        }
-        .stTextInput>div>div>input {
-            border-radius: 8px;
-            padding: 0.5rem;
-        }
-        .stSelectbox>div>div>select {
-            border-radius: 8px;
-            padding: 0.5rem;
-        }
-        .stRadio>div {
-            flex-direction: row;
-            gap: 2rem;
-        }
-        .stRadio>div>label {
-            margin-right: 2rem;
-        }
-        .success-box {
-            background-color: #e6f7e6;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-        .warning-box {
-            background-color: #fff3e6;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-        .generated-letter {
-            background-color: #f9f9f9;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 4px solid #4e4376;
-            margin: 1.5rem 0;
-        }
-    </style>
-""", unsafe_allow_html=True)
 
-# --- AUTHENTICATION ---
-if not st.session_state.authenticated:
-    st.markdown(f"<div class='header'>{get_text('title')}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div style='margin-bottom: 2rem;'>{get_text('auth_description')}</div>", unsafe_allow_html=True)
-    
-    with st.form("auth_form"):
-        license_key = st.text_input("Enter your license key", type="password")
-        submit_button = st.form_submit_button(get_text("authenticate"))
-        
-        if submit_button:
-            try:
-                with open(VALID_KEYS_FILE, "r") as f:
-                    valid_keys = json.load(f)
-            except FileNotFoundError:
-                valid_keys = []
-
-            if license_key in valid_keys:
-                st.session_state.authenticated = True
-                st.markdown(f"<div class='success-box'>{get_text('access_granted')}</div>", unsafe_allow_html=True)
-                st.experimental_rerun()
-            else:
-                st.markdown(f"<div class='warning-box'>{get_text('invalid_key')}</div>", unsafe_allow_html=True)
-
-    st.stop()
-
-# --- MAIN APP ---
-st.markdown(f"<div class='header'>{get_text('title')}</div>", unsafe_allow_html=True)
-
-# GDPR Consent
-if not st.session_state.gdpr_consent:
-    st.markdown(f"<div class='subheader'>{get_text('gdpr_title')}</div>", unsafe_allow_html=True)
-    with st.expander("GDPR Information", expanded=True):
-        st.markdown(get_text("gdpr_info"), unsafe_allow_html=True)
-    
-    gdpr_consent = st.checkbox(get_text("consent_check"))
-    if st.button(get_text("continue")):
-        if gdpr_consent:
-            st.session_state.gdpr_consent = True
-            st.experimental_rerun()
-        else:
-            st.warning(get_text("consent_warning"))
-    st.stop()
-
-# --- OPENAI SETUP ---
-client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-
-# --- LETTER STRUCTURE ---
+# ==================== letter_structure.py ====================
 letter_structure = {
     "Complaint": {
         "Poor Quality Care": [
@@ -326,121 +202,121 @@ letter_structure = {
     }
 }
 
-# --- IMPROVED PROMPT GENERATION WITH MULTILINGUAL SUPPORT ---
-def generate_prompt(category, subcategory, answers, user_name, tone):
-    language_instructions = {
-        "English": {
-            "tone": {
-                "Standard": "Use a professional yet approachable tone that clearly communicates concerns while maintaining constructive dialogue.",
-                "Serious Formal Complaint": "Use formal, assertive language with explicit references to regulatory standards and clear demands for action."
-            },
-            "structure": "Structure the letter in standard English business format with appropriate salutations and closings."
-        },
-        "Español": {
-            "tone": {
-                "Standard": "Utilice un tono profesional pero accesible que comunique claramente las preocupaciones manteniendo un diálogo constructivo.",
-                "Serious Formal Complaint": "Utilice un lenguaje formal y asertivo con referencias explícitas a estándares regulatorios y demandas claras de acción."
-            },
-            "structure": "Estructura la carta en formato comercial estándar en español con saludos y cierres apropiados."
-        },
-        "Français": {
-            "tone": {
-                "Standard": "Utilisez un tono professionnel mais accessible qui communique clairement les préoccupations tout en maintenant un dialogue constructif.",
-                "Serious Formal Complaint": "Utilisez un langage formel et assertif avec des références explicites aux normes réglementaires et des demandes d'action claires."
-            },
-            "structure": "Structurez la lettre dans un format commercial standard en français avec des salutations et des formules de politesse appropriées."
-        }
-    }
-    
-    lang = st.session_state.language
-    tone_desc = language_instructions[lang]["tone"][tone]
-    structure = language_instructions[lang]["structure"]
-    
-    prompt = f"""
-    Generate a {tone.lower()} letter in {lang} regarding {subcategory} under {category}.
-    
-    **User Provided Information:**
-    {json.dumps(answers, indent=2)}
-    
-    **Requirements:**
-    - Language: {lang}
-    - Address to appropriate recipient based on category
-    - Clear subject line summarizing the issue
-    - Structured in professional letter format: {structure}
-    - Tone: {tone_desc}
-    - Include relevant regulations/standards where appropriate
-    - Specify expected response timeframe (typically 14 days)
-    - Closing with "{user_name}" and contact information reminder
-    
-    **Special Instructions:**
-    - For complaints, include escalation pathway
-    - For advocacy, emphasize rights and needs
-    - For praise, be specific about positive impact
-    - Ensure all content is culturally appropriate for {lang} speakers
-    """
-    
-    return prompt
 
-# --- MAIN FORM UI ---
+# ==================== main.py ====================
+import json
+import streamlit as st
+from openai import OpenAI
+from streamlit_extras.stylable_container import stylable_container
+from translations import get_text
+from letter_structure import letter_structure
+
+# --- SETUP ---
+VALID_KEYS_FILE = "valid_keys.json"
+
+# Initialize session state
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "gdpr_consent" not in st.session_state:
+    st.session_state.gdpr_consent = False
+if "language" not in st.session_state:
+    st.session_state.language = "English"
+
+# --- CUSTOM CSS ---
+st.markdown("""
+    <style>
+        .main { max-width: 900px; padding: 2rem; }
+        .header { color: #2b5876; font-size: 2.5rem; margin-bottom: 1.5rem; }
+        .subheader { color: #4e4376; font-size: 1.5rem; margin-top: 1.5rem; margin-bottom: 1rem; }
+        .stButton>button { background-color: #4e4376; color: white; border-radius: 8px; padding: 0.5rem 1rem; border: none; }
+        .stButton>button:hover { background-color: #2b5876; }
+        .stTextInput>div>div>input, .stSelectbox>div>div>select { border-radius: 8px; padding: 0.5rem; }
+        .stRadio>div { flex-direction: row; gap: 2rem; }
+        .stRadio>div>label { margin-right: 2rem; }
+        .success-box { background-color: #e6f7e6; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+        .warning-box { background-color: #fff3e6; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+        .generated-letter { background-color: #f9f9f9; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #4e4376; margin: 1.5rem 0; }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- AUTHENTICATION ---
+if not st.session_state.authenticated:
+    st.markdown(f"<div class='header'>{get_text('title')}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='margin-bottom: 2rem;'>{get_text('auth_description')}</div>", unsafe_allow_html=True)
+    with st.form("auth_form"):
+        license_key = st.text_input("Enter your license key", type="password")
+        submit_button = st.form_submit_button(get_text("authenticate"))
+        if submit_button:
+            try:
+                with open(VALID_KEYS_FILE, "r") as f:
+                    valid_keys = json.load(f)
+            except FileNotFoundError:
+                valid_keys = []
+            if license_key in valid_keys:
+                valid_keys.remove(license_key)
+                with open(VALID_KEYS_FILE, "w") as f:
+                    json.dump(valid_keys, f)
+                st.session_state.authenticated = True
+                st.markdown(f"<div class='success-box'>{get_text('access_granted')}</div>", unsafe_allow_html=True)
+                st.experimental_rerun()
+            else:
+                st.markdown(f"<div class='warning-box'>{get_text('invalid_key')}</div>", unsafe_allow_html=True)
+    st.stop()
+
+# --- GDPR CONSENT ---
+st.markdown(f"<div class='header'>{get_text('title')}</div>", unsafe_allow_html=True)
+if not st.session_state.gdpr_consent:
+    st.markdown(f"<div class='subheader'>{get_text('gdpr_title')}</div>", unsafe_allow_html=True)
+    with st.expander("GDPR Information", expanded=True):
+        st.markdown(get_text("gdpr_info"), unsafe_allow_html=True)
+    gdpr_consent = st.checkbox(get_text("consent_check"))
+    if st.button(get_text("continue")):
+        if gdpr_consent:
+            st.session_state.gdpr_consent = True
+            st.experimental_rerun()
+        else:
+            st.warning(get_text("consent_warning"))
+    st.stop()
+
+# --- OPENAI SETUP ---
+client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+# --- SIDEBAR SETTINGS ---
 with st.sidebar:
     st.markdown(f"### {get_text('settings')}")
-    
-    # Language selector
     st.session_state.language = st.selectbox(
         "Language / Idioma / Langue",
         list(LANGUAGES.keys()),
         index=list(LANGUAGES.keys()).index(st.session_state.language)
-    
+    )
     tone = st.radio(
         get_text("letter_tone"),
         ("Standard", "Serious Formal Complaint"),
         help=get_text("tone_help")
     )
-    
     st.markdown("---")
     st.markdown(f"### {get_text('about')}")
     st.markdown(get_text("about_text"), unsafe_allow_html=True)
 
-# Main form
+# --- MAIN FORM ---
 st.markdown(f"<div class='subheader'>{get_text('create_letter')}</div>", unsafe_allow_html=True)
-
 with st.form("letter_form"):
-    # Category selection
     cols = st.columns(2)
     with cols[0]:
-        selected_category = st.selectbox(
-            get_text("letter_category"),
-            list(letter_structure.keys()),
-            help=get_text("category_help")
+        selected_category = st.selectbox(get_text("letter_category"), list(letter_structure.keys()), help=get_text("category_help"))
+    with cols[1]:
+        selected_subcategory = st.selectbox(get_text("specific_issue"), list(letter_structure[selected_category].keys()), help=get_text("issue_help"))
+    st.markdown("---")
+    st.markdown(f"### About the {selected_subcategory}")
+    user_answers = {}
+    for i, question in enumerate(letter_structure[selected_category][selected_subcategory]):
+        user_answers[question] = st.text_area(
+            question,
+            key=f"q_{i}",
+            placeholder=("Provide details here..." if st.session_state.language=="English" else
+                           "Proporcione detalles aquí..." if st.session_state.language=="Español" else
+                           "Fournissez des détails ici..."),
+            height=(100 if len(question)>50 else 80)
         )
-    
-    # Subcategory selection
-    if selected_category:
-        with cols[1]:
-            subcategories = list(letter_structure[selected_category].keys())
-            selected_subcategory = st.selectbox(
-                get_text("specific_issue"),
-                subcategories,
-                help=get_text("issue_help")
-            )
-    
-    # Dynamic questions
-    if selected_subcategory:
-        st.markdown("---")
-        st.markdown(f"### About the {selected_subcategory}")
-        
-        user_answers = {}
-        for i, question in enumerate(letter_structure[selected_category][selected_subcategory]):
-            user_answers[question] = st.text_area(
-                question,
-                key=f"q_{i}",
-                placeholder="Provide details here..." if st.session_state.language == "English" else 
-                      "Proporcione detalles aquí..." if st.session_state.language == "Español" else
-                      "Fournissez des détails ici...",
-                height=100 if len(question) > 50 else 80
-            )
-    
-    # User details
     st.markdown("---")
     st.markdown(f"### {get_text('your_details')}")
     user_cols = st.columns(2)
@@ -448,8 +324,6 @@ with st.form("letter_form"):
         user_name = st.text_input(get_text("full_name"), placeholder=get_text("full_name"))
     with user_cols[1]:
         user_contact = st.text_input(get_text("contact_info"), placeholder="Email/phone")
-    
-    # Submission
     submit_button = st.form_submit_button(get_text("generate"))
 
 # --- LETTER GENERATION ---
@@ -459,67 +333,27 @@ if submit_button:
     else:
         with st.spinner(get_text("generating")):
             try:
-                full_prompt = generate_prompt(
-                    selected_category,
-                    selected_subcategory,
-                    user_answers,
-                    user_name,
-                    tone
-                )
-                
+                from letter_structure import letter_structure
+                full_prompt = generate_prompt(selected_category, selected_subcategory, user_answers, user_name, tone)
                 response = client.chat.completions.create(
                     model="gpt-4-turbo-preview",
                     messages=[
-                        {
-                            "role": "system", 
-                            "content": f"You are a professional care quality advocate with expertise in health and social care regulations. Respond in {st.session_state.language}."
-                        },
-                        {"role": "user", "content": full_prompt}
+                        {"role":"system","content":f"You are a professional care quality advocate with expertise in health and social care regulations. Respond in {st.session_state.language}."},
+                        {"role":"user","content":full_prompt}
                     ],
-                    temperature=0.3 if tone == "Serious Formal Complaint" else 0.7
+                    temperature=(0.3 if tone=="Serious Formal Complaint" else 0.7)
                 )
-                
                 generated_letter = response.choices[0].message.content
-                
-                # Display results
                 st.markdown("---")
                 st.markdown(f"<div class='subheader'>{get_text('generated_letter')}</div>", unsafe_allow_html=True)
-                
-                with stylable_container(
-                    key="generated_letter",
-                    css_styles="""
-                        {
-                            background-color: #f8f9fa;
-                            border-radius: 8px;
-                            padding: 1.5rem;
-                            border-left: 4px solid #4e4376;
-                            white-space: pre-wrap;
-                        }
-                    """
-                ):
+                with stylable_container(key="generated_letter",css_styles="""
+                        { background-color:#f8f9fa; border-radius:8px; padding:1.5rem; border-left:4px solid #4e4376; white-space:pre-wrap }"""):
                     st.markdown(generated_letter)
-                
-                # Download options
-                st.markdown("---")
                 dl_cols = st.columns(3)
-                with dl_cols[0]:
-                    st.download_button(
-                        label=get_text("download_txt"),
-                        data=generated_letter,
-                        file_name=f"care_letter_{selected_subcategory.replace(' ', '_')}.txt",
-                        mime="text/plain"
-                    )
-                with dl_cols[1]:
-                    st.download_button(
-                        label=get_text("download_doc"),
-                        data=generated_letter,
-                        file_name=f"care_letter_{selected_subcategory.replace(' ', '_')}.doc",
-                        mime="application/msword"
-                    )
+                with dl_cols[0]: st.download_button(label=get_text("download_txt"), data=generated_letter, file_name=f"care_letter_{selected_subcategory.replace(' ','_')}.txt", mime="text/plain")
+                with dl_cols[1]: st.download_button(label=get_text("download_doc"), data=generated_letter, file_name=f"care_letter_{selected_subcategory.replace(' ','_')}.doc", mime="application/msword")
                 with dl_cols[2]:
-                    if st.button(get_text("regenerate")):
-                        st.experimental_rerun()
-                
+                    if st.button(get_text("regenerate")): st.experimental_rerun()
             except Exception as e:
-                st.error(f"{get_text('error_message')} {str(e)}")
+                st.error(f"{get_text('error_message')} {e}")
                 st.error(get_text("error_help"))
