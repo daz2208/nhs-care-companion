@@ -244,7 +244,8 @@ if not st.session_state.authenticated:
             if license_key in valid_keys:
                 st.session_state.authenticated = True
                 st.markdown(f"<div class='success-box'>{get_text('access_granted')}</div>", unsafe_allow_html=True)
-                st.experimental_rerun()
+              st.rerun()
+
             else:
                 st.markdown(f"<div class='warning-box'>{get_text('invalid_key')}</div>", unsafe_allow_html=True)
 
