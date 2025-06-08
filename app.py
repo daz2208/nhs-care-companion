@@ -225,6 +225,7 @@ with st.sidebar:
         t("language"),
         list(LANGUAGES.keys()),
         index=list(LANGUAGES.keys()).index(st.session_state.language)
+    )
     
     if not st.session_state.authenticated:
         with st.form("auth_form"):
@@ -235,8 +236,7 @@ with st.sidebar:
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error(t("invalid_key") if not st.session_state.license_key in VALID_KEYS 
-                           else st.error(t("gdpr_required"))
+                    st.error(t("invalid_key") if not st.session_state.license_key in VALID_KEYS else t("gdpr_required")
 
 if not st.session_state.authenticated:
     st.stop()
@@ -350,3 +350,5 @@ with st.sidebar:
 with st.expander(t("debug_prompt")):
     if "last_prompt" in st.session_state:
         st.code(st.session_state.last_prompt)
+
+                   
