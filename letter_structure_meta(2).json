@@ -1,0 +1,1740 @@
+{
+  "Care Complaint Letter": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Neglect or injury": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Neglect or injury - {date}",
+        "questions": [
+          {
+            "question": "Who was harmed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who was harmed?",
+            "help_text": ""
+          },
+          {
+            "question": "Where did it happen?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Where did it happen?",
+            "help_text": ""
+          },
+          {
+            "question": "What happened?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What happened?",
+            "help_text": ""
+          },
+          {
+            "question": "What was the result?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What was the result?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you raised this already?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you raised this already?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Medication errors": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Medication errors - {date}",
+        "questions": [
+          {
+            "question": "What medication issue occurred — wrong dose, missed dose, or something else?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What medication issue occurred — wrong dose, missed dose, or something else?",
+            "help_text": ""
+          },
+          {
+            "question": "Where and when did this happen, if you know?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Where and when did this happen, if you know?",
+            "help_text": ""
+          },
+          {
+            "question": "Who was affected by the error?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who was affected by the error?",
+            "help_text": ""
+          },
+          {
+            "question": "What was done about it at the time, if anything?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What was done about it at the time, if anything?",
+            "help_text": ""
+          },
+          {
+            "question": "What do you feel should happen now as a result?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What do you feel should happen now as a result?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Staff conduct": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Staff conduct - {date}",
+        "questions": [
+          {
+            "question": "What happened?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What happened?",
+            "help_text": ""
+          },
+          {
+            "question": "Who was involved?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who was involved?",
+            "help_text": ""
+          },
+          {
+            "question": "Was this one-time or ongoing?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Was this one-time or ongoing?",
+            "help_text": ""
+          },
+          {
+            "question": "What was the impact?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What was the impact?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you spoken to the provider?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you spoken to the provider?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Cleanliness or environment": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Cleanliness or environment - {date}",
+        "questions": [
+          {
+            "question": "What hygiene issue or risk occurred?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What hygiene issue or risk occurred?",
+            "help_text": ""
+          },
+          {
+            "question": "Who did it affect?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who did it affect?",
+            "help_text": ""
+          },
+          {
+            "question": "What date/time was this?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What date/time was this?",
+            "help_text": ""
+          },
+          {
+            "question": "Has it been addressed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Has it been addressed?",
+            "help_text": ""
+          },
+          {
+            "question": "Are you seeking specific action?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Are you seeking specific action?",
+            "help_text": ""
+          }
+        ]
+      },
+      "General standards of care": {
+        "description": "",
+        "tags": [],
+        "subject_template": "General standards of care - {date}",
+        "questions": [
+          {
+            "question": "What care concerns do you have?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What care concerns do you have?",
+            "help_text": ""
+          },
+          {
+            "question": "Is this recent or long-standing?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Is this recent or long-standing?",
+            "help_text": ""
+          },
+          {
+            "question": "Any dates/incidents worth noting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Any dates/incidents worth noting?",
+            "help_text": ""
+          },
+          {
+            "question": "What changes are you requesting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What changes are you requesting?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Family Advocacy Letter": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Request a meeting": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request a meeting - {date}",
+        "questions": [
+          {
+            "question": "Who do you want to meet with?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who do you want to meet with?",
+            "help_text": ""
+          },
+          {
+            "question": "What is the purpose of the meeting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is the purpose of the meeting?",
+            "help_text": ""
+          },
+          {
+            "question": "Any preferred dates/times?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Any preferred dates/times?",
+            "help_text": ""
+          },
+          {
+            "question": "Is this urgent or routine?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Is this urgent or routine?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Disagree with discharge": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Disagree with discharge - {date}",
+        "questions": [
+          {
+            "question": "Who is being discharged?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is being discharged?",
+            "help_text": ""
+          },
+          {
+            "question": "What are your concerns?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What are your concerns?",
+            "help_text": ""
+          },
+          {
+            "question": "What support is missing?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What support is missing?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you spoken to the discharge team?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you spoken to the discharge team?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Challenge capacity assessment": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Challenge capacity assessment - {date}",
+        "questions": [
+          {
+            "question": "What is your loved one's diagnosis?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is your loved one's diagnosis?",
+            "help_text": ""
+          },
+          {
+            "question": "Why do you believe the assessment is flawed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why do you believe the assessment is flawed?",
+            "help_text": ""
+          },
+          {
+            "question": "What outcome are you seeking?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What outcome are you seeking?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you discussed this with professionals already?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you discussed this with professionals already?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Request second opinion": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request second opinion - {date}",
+        "questions": [
+          {
+            "question": "What was the first opinion or assessment?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What was the first opinion or assessment?",
+            "help_text": ""
+          },
+          {
+            "question": "Why do you feel a second opinion is necessary?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why do you feel a second opinion is necessary?",
+            "help_text": ""
+          },
+          {
+            "question": "What changes in care would this affect?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What changes in care would this affect?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you made a formal request before?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you made a formal request before?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Follow-up after safeguarding": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Follow-up after safeguarding - {date}",
+        "questions": [
+          {
+            "question": "What was the original concern?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What was the original concern?",
+            "help_text": ""
+          },
+          {
+            "question": "What outcome are you checking on?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What outcome are you checking on?",
+            "help_text": ""
+          },
+          {
+            "question": "Any dates/people involved?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Any dates/people involved?",
+            "help_text": ""
+          },
+          {
+            "question": "Has there been any communication since?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Has there been any communication since?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Referral Support Letter": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Request community support": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request community support - {date}",
+        "questions": [
+          {
+            "question": "What support do you believe is needed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What support do you believe is needed?",
+            "help_text": ""
+          },
+          {
+            "question": "Who is the individual needing it?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is the individual needing it?",
+            "help_text": ""
+          },
+          {
+            "question": "Have they had this support before?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have they had this support before?",
+            "help_text": ""
+          },
+          {
+            "question": "Why now?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why now?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Request MDT review": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request MDT review - {date}",
+        "questions": [
+          {
+            "question": "What is the reason for requesting an MDT?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is the reason for requesting an MDT?",
+            "help_text": ""
+          },
+          {
+            "question": "Who is involved in the care?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is involved in the care?",
+            "help_text": ""
+          },
+          {
+            "question": "Are there conflicting opinions?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Are there conflicting opinions?",
+            "help_text": ""
+          },
+          {
+            "question": "What is the ideal next step?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is the ideal next step?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Referral to CHC/NHS Continuing Care": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Referral to CHC/NHS Continuing Care - {date}",
+        "questions": [
+          {
+            "question": "Why do you think CHC is appropriate?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why do you think CHC is appropriate?",
+            "help_text": ""
+          },
+          {
+            "question": "What needs are you highlighting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What needs are you highlighting?",
+            "help_text": ""
+          },
+          {
+            "question": "Have assessments already started?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have assessments already started?",
+            "help_text": ""
+          },
+          {
+            "question": "Are you requesting a Fast Track?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Are you requesting a Fast Track?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Referral for reassessment": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Referral for reassessment - {date}",
+        "questions": [
+          {
+            "question": "What has changed in the person's condition?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What has changed in the person's condition?",
+            "help_text": ""
+          },
+          {
+            "question": "When was the last assessment?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "When was the last assessment?",
+            "help_text": ""
+          },
+          {
+            "question": "What result are you hoping for?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What result are you hoping for?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Thank You & Positive Feedback": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Praise for a staff member": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Praise for a staff member - {date}",
+        "questions": [
+          {
+            "question": "What did they do well?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What did they do well?",
+            "help_text": ""
+          },
+          {
+            "question": "When and where?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "When and where?",
+            "help_text": ""
+          },
+          {
+            "question": "What impact did it have?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What impact did it have?",
+            "help_text": ""
+          },
+          {
+            "question": "Do you want management to be notified?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Do you want management to be notified?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Thank a team or home": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Thank a team or home - {date}",
+        "questions": [
+          {
+            "question": "What overall praise would you like to give?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What overall praise would you like to give?",
+            "help_text": ""
+          },
+          {
+            "question": "Is there a specific moment worth mentioning?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Is there a specific moment worth mentioning?",
+            "help_text": ""
+          },
+          {
+            "question": "Would you like to stay in contact?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Would you like to stay in contact?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Positive discharge feedback": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Positive discharge feedback - {date}",
+        "questions": [
+          {
+            "question": "What made the discharge go well?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What made the discharge go well?",
+            "help_text": ""
+          },
+          {
+            "question": "Who was involved?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who was involved?",
+            "help_text": ""
+          },
+          {
+            "question": "Any specific comments you'd like to share?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Any specific comments you'd like to share?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Support during end-of-life care": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Support during end-of-life care - {date}",
+        "questions": [
+          {
+            "question": "Who provided support?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who provided support?",
+            "help_text": ""
+          },
+          {
+            "question": "What actions stood out?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What actions stood out?",
+            "help_text": ""
+          },
+          {
+            "question": "Would you like this shared with leadership?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Would you like this shared with leadership?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Hospital & Discharge": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Discharge objection": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Discharge objection - {date}",
+        "questions": [
+          {
+            "question": "What discharge is being planned?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What discharge is being planned?",
+            "help_text": ""
+          },
+          {
+            "question": "Why is it not safe/suitable?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why is it not safe/suitable?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you communicated with the ward?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you communicated with the ward?",
+            "help_text": ""
+          },
+          {
+            "question": "What would be a better plan?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What would be a better plan?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Hospital complaint": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Hospital complaint - {date}",
+        "questions": [
+          {
+            "question": "What happened?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What happened?",
+            "help_text": ""
+          },
+          {
+            "question": "Where (ward/hospital)?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Where (ward/hospital)?",
+            "help_text": ""
+          },
+          {
+            "question": "What impact did this have?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What impact did this have?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you already raised this?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you already raised this?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Request delayed discharge support": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request delayed discharge support - {date}",
+        "questions": [
+          {
+            "question": "Who is awaiting discharge?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is awaiting discharge?",
+            "help_text": ""
+          },
+          {
+            "question": "What barriers exist?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What barriers exist?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you asked for social worker input?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you asked for social worker input?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Hospital to home unsafe discharge": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Hospital to home unsafe discharge - {date}",
+        "questions": [
+          {
+            "question": "Who was discharged unsafely?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who was discharged unsafely?",
+            "help_text": ""
+          },
+          {
+            "question": "What went wrong?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What went wrong?",
+            "help_text": ""
+          },
+          {
+            "question": "What was the result?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What was the result?",
+            "help_text": ""
+          },
+          {
+            "question": "What are you requesting now?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What are you requesting now?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Other Letters": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Safeguarding concern": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Safeguarding concern - {date}",
+        "questions": [
+          {
+            "question": "What concern do you want to report?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What concern do you want to report?",
+            "help_text": ""
+          },
+          {
+            "question": "Who is at risk?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is at risk?",
+            "help_text": ""
+          },
+          {
+            "question": "When and where did this happen?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "When and where did this happen?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you contacted the safeguarding team?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you contacted the safeguarding team?",
+            "help_text": ""
+          }
+        ]
+      },
+      "LPA/Deputy involvement letter": {
+        "description": "",
+        "tags": [],
+        "subject_template": "LPA/Deputy involvement letter - {date}",
+        "questions": [
+          {
+            "question": "What role do you hold (LPA/Deputy)?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What role do you hold (LPA/Deputy)?",
+            "help_text": ""
+          },
+          {
+            "question": "What decisions are being challenged?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What decisions are being challenged?",
+            "help_text": ""
+          },
+          {
+            "question": "What outcome are you requesting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What outcome are you requesting?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Request for care review": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request for care review - {date}",
+        "questions": [
+          {
+            "question": "Why is a review needed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why is a review needed?",
+            "help_text": ""
+          },
+          {
+            "question": "What has changed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What has changed?",
+            "help_text": ""
+          },
+          {
+            "question": "What result are you hoping for?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What result are you hoping for?",
+            "help_text": ""
+          },
+          {
+            "question": "Who needs to be involved?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who needs to be involved?",
+            "help_text": ""
+          }
+        ]
+      },
+      "GP concern": {
+        "description": "",
+        "tags": [],
+        "subject_template": "GP concern - {date}",
+        "questions": [
+          {
+            "question": "Who is the GP or practice?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is the GP or practice?",
+            "help_text": ""
+          },
+          {
+            "question": "What is the concern?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is the concern?",
+            "help_text": ""
+          },
+          {
+            "question": "What impact is this having?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What impact is this having?",
+            "help_text": ""
+          },
+          {
+            "question": "Are you requesting referral or action?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Are you requesting referral or action?",
+            "help_text": ""
+          }
+        ]
+      },
+      "CQC notification (family use)": {
+        "description": "",
+        "tags": [],
+        "subject_template": "CQC notification (family use) - {date}",
+        "questions": [
+          {
+            "question": "What is the setting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is the setting?",
+            "help_text": ""
+          },
+          {
+            "question": "What concern are you reporting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What concern are you reporting?",
+            "help_text": ""
+          },
+          {
+            "question": "Is this ongoing or resolved?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Is this ongoing or resolved?",
+            "help_text": ""
+          },
+          {
+            "question": "Do you want a callback or acknowledgment?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Do you want a callback or acknowledgment?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Escalation & Regulatory": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Notify safeguarding board": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Notify safeguarding board - {date}",
+        "questions": [
+          {
+            "question": "What incident or risk are you reporting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What incident or risk are you reporting?",
+            "help_text": ""
+          },
+          {
+            "question": "Who is affected?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is affected?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you reported it to the care provider?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you reported it to the care provider?",
+            "help_text": ""
+          },
+          {
+            "question": "Why are you escalating it externally now?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why are you escalating it externally now?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Raise formal concern with CQC": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Raise formal concern with CQC - {date}",
+        "questions": [
+          {
+            "question": "What concern do you want CQC to investigate?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What concern do you want CQC to investigate?",
+            "help_text": ""
+          },
+          {
+            "question": "Where is the setting and who is affected?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Where is the setting and who is affected?",
+            "help_text": ""
+          },
+          {
+            "question": "Is this a single incident or ongoing pattern?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Is this a single incident or ongoing pattern?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you tried resolving this locally first?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you tried resolving this locally first?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Escalate to Integrated Care Board (ICB)": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Escalate to Integrated Care Board (ICB) - {date}",
+        "questions": [
+          {
+            "question": "What issue are you escalating?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What issue are you escalating?",
+            "help_text": ""
+          },
+          {
+            "question": "What support or funding is being denied?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What support or funding is being denied?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you followed the correct steps so far?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you followed the correct steps so far?",
+            "help_text": ""
+          },
+          {
+            "question": "Why is ICB intervention needed now?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why is ICB intervention needed now?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Advocate Support Requests": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Seek mental capacity advocate (IMCA)": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Seek mental capacity advocate (IMCA) - {date}",
+        "questions": [
+          {
+            "question": "What decision is being made?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What decision is being made?",
+            "help_text": ""
+          },
+          {
+            "question": "Does the person lack capacity for it?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Does the person lack capacity for it?",
+            "help_text": ""
+          },
+          {
+            "question": "Are they unbefriended (no close family/friends)?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Are they unbefriended (no close family/friends)?",
+            "help_text": ""
+          },
+          {
+            "question": "What outcome are you hoping for?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What outcome are you hoping for?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Request independent advocate (IMHA)": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request independent advocate (IMHA) - {date}",
+        "questions": [
+          {
+            "question": "What mental health issue is involved?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What mental health issue is involved?",
+            "help_text": ""
+          },
+          {
+            "question": "Is the person detained or sectioned?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Is the person detained or sectioned?",
+            "help_text": ""
+          },
+          {
+            "question": "What kind of support is needed from advocacy?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What kind of support is needed from advocacy?",
+            "help_text": ""
+          },
+          {
+            "question": "Have they had an advocate before?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have they had an advocate before?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Challenge under Human Rights Act": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Challenge under Human Rights Act - {date}",
+        "questions": [
+          {
+            "question": "What decision or treatment is breaching rights?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What decision or treatment is breaching rights?",
+            "help_text": ""
+          },
+          {
+            "question": "Whose rights are affected?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Whose rights are affected?",
+            "help_text": ""
+          },
+          {
+            "question": "Which right (Article 8, 5, etc.) is relevant?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Which right (Article 8, 5, etc.) is relevant?",
+            "help_text": ""
+          },
+          {
+            "question": "What action are you requesting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What action are you requesting?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Delays & Practical Barriers": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Chase delayed referral or appointment": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Chase delayed referral or appointment - {date}",
+        "questions": [
+          {
+            "question": "Who is waiting for what (referral/test/support)?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who is waiting for what (referral/test/support)?",
+            "help_text": ""
+          },
+          {
+            "question": "How long has the delay been?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How long has the delay been?",
+            "help_text": ""
+          },
+          {
+            "question": "What impact is the delay having?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What impact is the delay having?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you contacted the provider already?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you contacted the provider already?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Dispute funding refusal (LA/NHS)": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Dispute funding refusal (LA/NHS) - {date}",
+        "questions": [
+          {
+            "question": "What funding was denied?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What funding was denied?",
+            "help_text": ""
+          },
+          {
+            "question": "What is the person's current care situation?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is the person's current care situation?",
+            "help_text": ""
+          },
+          {
+            "question": "Why do you believe the refusal is unfair?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Why do you believe the refusal is unfair?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you received a written explanation?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you received a written explanation?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Request carer support plan": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request carer support plan - {date}",
+        "questions": [
+          {
+            "question": "Are you a family carer?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Are you a family carer?",
+            "help_text": ""
+          },
+          {
+            "question": "What support are you struggling to provide?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What support are you struggling to provide?",
+            "help_text": ""
+          },
+          {
+            "question": "Has a carer's assessment ever been done?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Has a carer's assessment ever been done?",
+            "help_text": ""
+          },
+          {
+            "question": "What help would make a difference?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What help would make a difference?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Care Home Specific": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Request care plan review": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request care plan review - {date}",
+        "questions": [
+          {
+            "question": "What aspects of the care plan need review?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What aspects of the care plan need review?",
+            "help_text": ""
+          },
+          {
+            "question": "What changes are you requesting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What changes are you requesting?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you discussed this with staff already?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you discussed this with staff already?",
+            "help_text": ""
+          },
+          {
+            "question": "What is your preferred timeline?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What is your preferred timeline?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Complaint about food/nutrition": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Complaint about food/nutrition - {date}",
+        "questions": [
+          {
+            "question": "What specific issues have you observed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What specific issues have you observed?",
+            "help_text": ""
+          },
+          {
+            "question": "How long has this been going on?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How long has this been going on?",
+            "help_text": ""
+          },
+          {
+            "question": "What impact is this having?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What impact is this having?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you raised this with staff before?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you raised this with staff before?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Activities and engagement": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Activities and engagement - {date}",
+        "questions": [
+          {
+            "question": "What activities are lacking?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What activities are lacking?",
+            "help_text": ""
+          },
+          {
+            "question": "How does this affect residents?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How does this affect residents?",
+            "help_text": ""
+          },
+          {
+            "question": "What suggestions do you have?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What suggestions do you have?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you discussed this with the activities coordinator?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you discussed this with the activities coordinator?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Visitation rights concern": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Visitation rights concern - {date}",
+        "questions": [
+          {
+            "question": "What visitation issues are occurring?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What visitation issues are occurring?",
+            "help_text": ""
+          },
+          {
+            "question": "How is this affecting the resident?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How is this affecting the resident?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you seen the home's visitation policy?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you seen the home's visitation policy?",
+            "help_text": ""
+          },
+          {
+            "question": "What resolution are you seeking?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What resolution are you seeking?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Mental Health Advocacy": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "Challenge section or treatment": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Challenge section or treatment - {date}",
+        "questions": [
+          {
+            "question": "What decision are you challenging?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What decision are you challenging?",
+            "help_text": ""
+          },
+          {
+            "question": "What are your specific concerns?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What are your specific concerns?",
+            "help_text": ""
+          },
+          {
+            "question": "What alternative approaches would you suggest?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What alternative approaches would you suggest?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you discussed this with the care team?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you discussed this with the care team?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Request care coordinator meeting": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Request care coordinator meeting - {date}",
+        "questions": [
+          {
+            "question": "What issues need discussion?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What issues need discussion?",
+            "help_text": ""
+          },
+          {
+            "question": "Who should be present?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Who should be present?",
+            "help_text": ""
+          },
+          {
+            "question": "What are your desired outcomes?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What are your desired outcomes?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you tried informal resolution first?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you tried informal resolution first?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Medication side effects": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Medication side effects - {date}",
+        "questions": [
+          {
+            "question": "What medication is causing issues?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What medication is causing issues?",
+            "help_text": ""
+          },
+          {
+            "question": "What side effects are occurring?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What side effects are occurring?",
+            "help_text": ""
+          },
+          {
+            "question": "How is this affecting daily life?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How is this affecting daily life?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you reported this to the prescribing doctor?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you reported this to the prescribing doctor?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Aftercare planning": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Aftercare planning - {date}",
+        "questions": [
+          {
+            "question": "What aftercare is being proposed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What aftercare is being proposed?",
+            "help_text": ""
+          },
+          {
+            "question": "What support is missing?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What support is missing?",
+            "help_text": ""
+          },
+          {
+            "question": "What risks concern you?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What risks concern you?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you seen the written aftercare plan?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you seen the written aftercare plan?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  },
+  "Children's Services": {
+    "description": "",
+    "tags": [],
+    "subcategories": {
+      "EHCP concerns": {
+        "description": "",
+        "tags": [],
+        "subject_template": "EHCP concerns - {date}",
+        "questions": [
+          {
+            "question": "What specific parts of the EHCP aren't being met?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What specific parts of the EHCP aren't being met?",
+            "help_text": ""
+          },
+          {
+            "question": "How is this affecting the child?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How is this affecting the child?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you raised this with the school/local authority?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you raised this with the school/local authority?",
+            "help_text": ""
+          },
+          {
+            "question": "What outcome are you seeking?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What outcome are you seeking?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Social services involvement": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Social services involvement - {date}",
+        "questions": [
+          {
+            "question": "What decisions are you concerned about?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What decisions are you concerned about?",
+            "help_text": ""
+          },
+          {
+            "question": "How is this affecting the family?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How is this affecting the family?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you had a chance to share your views?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you had a chance to share your views?",
+            "help_text": ""
+          },
+          {
+            "question": "What support do you feel is needed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What support do you feel is needed?",
+            "help_text": ""
+          }
+        ]
+      },
+      "CAMHS waiting times": {
+        "description": "",
+        "tags": [],
+        "subject_template": "CAMHS waiting times - {date}",
+        "questions": [
+          {
+            "question": "How long has the child been waiting?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How long has the child been waiting?",
+            "help_text": ""
+          },
+          {
+            "question": "What impact is the delay having?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What impact is the delay having?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you contacted the service about prioritization?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you contacted the service about prioritization?",
+            "help_text": ""
+          },
+          {
+            "question": "What interim support is needed?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What interim support is needed?",
+            "help_text": ""
+          }
+        ]
+      },
+      "Education provision complaint": {
+        "description": "",
+        "tags": [],
+        "subject_template": "Education provision complaint - {date}",
+        "questions": [
+          {
+            "question": "What specific issues are occurring at school?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What specific issues are occurring at school?",
+            "help_text": ""
+          },
+          {
+            "question": "How is this affecting the child's education?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "How is this affecting the child's education?",
+            "help_text": ""
+          },
+          {
+            "question": "Have you followed the school's complaints policy?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "Have you followed the school's complaints policy?",
+            "help_text": ""
+          },
+          {
+            "question": "What resolution would you like to see?",
+            "type": "text",
+            "optional": false,
+            "placeholder": "What resolution would you like to see?",
+            "help_text": ""
+          }
+        ]
+      }
+    }
+  }
+}
