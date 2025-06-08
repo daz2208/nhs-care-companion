@@ -1,4 +1,4 @@
-# NHS Care Companion Letter Generator
+# NHS Care Companion Letter Generator (Full UI Version)
 
 import streamlit as st
 import json
@@ -76,7 +76,7 @@ def init_state():
         "generated_letter": "",
         "saved_letters": {},
         "meta": {
-            "version": "1.0",
+            "version": "2.0",
             "letter_count": 0,
             "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         }
@@ -135,13 +135,83 @@ def generate_prompt():
 - Paragraphs, closing, sign: Sincerely, {st.session_state.user_name}
 """
 
+# --- LETTER STATE ---
+def clear_form():
+    st.session_state.answers = {}
+    st.session_state.generated_letter = ""
+    st.session_state.selected_subcategory = None
+    st.rerun()
+
+def save_current_letter():
+    if not st.session_state.generated_letter:
+        return
+    letter_id = str(uuid.uuid4())[:8]
+    subject_template = LETTER_STRUCTURE[st.session_state.selected_category]["subcategories"][st.session_state.selected_subcategory]["subject_template"]
+    letter_title = subject_template.format(date=datetime.datetime.now().strftime("%Y-%m-%d"))
+    st.session_state.saved_letters[letter_title] = {
+        "content": st.session_state.generated_letter,
+        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "category": st.session_state.selected_category,
+        "subcategory": st.session_state.selected_subcategory,
+        "answers": st.session_state.answers.copy(),
+        "recipient": st.session_state.recipient,
+        "user_name": st.session_state.user_name,
+        "tone": st.session_state.tone,
+        "title": letter_title
+    }
+    st.session_state.meta["letter_count"] = len(st.session_state.saved_letters)
+    st.session_state.meta["last_updated"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    st.toast(f"Saved letter: {letter_title}", icon="✅")
+
+def load_letter(title):
+    d = st.session_state.saved_letters.get(title)
+    if d:
+        st.session_state.generated_letter = d["content"]
+        st.session_state.selected_category = d["category"]
+        st.session_state.selected_subcategory = d["subcategory"]
+        st.session_state.answers = d.get("answers", {})
+        st.session_state.recipient = d.get("recipient", "")
+        st.session_state.user_name = d.get("user_name", "")
+        st.session_state.tone = d.get("tone", "Standard")
+        st.toast(f"Loaded letter: {title}", icon="📄")
+        st.rerun()
+
+def delete_letter(title):
+    if title in st.session_state.saved_letters:
+        del st.session_state.saved_letters[title]
+        st.session_state.meta["letter_count"] = len(st.session_state.saved_letters)
+        st.toast(f"Deleted letter: {title}", icon="🗑️")
+        st.rerun()
+
+# --- UI COMPONENTS ---
+def sidebar():
+    st.sidebar.selectbox(t("language_select"), list(LANGUAGES.keys()), key="language")
+    st.sidebar.checkbox(t("gdpr_label"), value=st.session_state.gdpr_consent, key="gdpr_consent")
+    if st.session_state.saved_letters:
+        with st.sidebar.expander("📂 Saved Letters", expanded=True):
+            for title in st.session_state.saved_letters:
+                cols = st.columns([4, 1])
+                with cols[0]:
+                    if st.button(title, key=f"load_{title}"):
+                        load_letter(title)
+                with cols[1]:
+                    if st.button("🗑️", key=f"del_{title}", help="Delete this letter"):
+                        delete_letter(title)
+    with st.sidebar.expander("ℹ️ About This App"):
+        st.markdown(f"**Version:** {st.session_state.meta['version']}")
+        st.markdown(f"**Letters Generated:** {st.session_state.meta['letter_count']}")
+        st.markdown(f"**Last Updated:** {st.session_state.meta['last_updated']}")
+
 # --- MAIN FORM ---
 def letter_form():
     with st.form("letter_form"):
-        st.text_input(t("name_label"), value=st.session_state.user_name, key="user_name")
-        st.text_input(t("recipient_label"), value=st.session_state.recipient, key="recipient")
-        st.date_input(t("date_label"), value=datetime.datetime.strptime(st.session_state.date, "%Y-%m-%d"), key="date")
-        st.selectbox(t("tone_label"), ["Standard", "Serious Formal Complaint"], index=0 if st.session_state.tone=="Standard" else 1, key="tone", help=t("tone_help"))
+        col1, col2 = st.columns(2)
+        with col1:
+            st.text_input(t("name_label"), value=st.session_state.user_name, key="user_name")
+            st.text_input(t("recipient_label"), value=st.session_state.recipient, key="recipient")
+        with col2:
+            st.date_input(t("date_label"), value=datetime.datetime.strptime(st.session_state.date, "%Y-%m-%d"), key="date")
+            st.selectbox(t("tone_label"), ["Standard", "Serious Formal Complaint"], index=0 if st.session_state.tone=="Standard" else 1, key="tone", help=t("tone_help"))
         st.selectbox(t("category_label"), list(LETTER_STRUCTURE.keys()), key="selected_category")
         if st.session_state.selected_category:
             subs = LETTER_STRUCTURE[st.session_state.selected_category]["subcategories"]
@@ -150,7 +220,7 @@ def letter_form():
                 st.subheader(t("questions_header"))
                 for q in subs[st.session_state.selected_subcategory]["questions"]:
                     st.text_area(q["question"], key=f"q_{q['question']}")
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         if col1.form_submit_button(t("generate_button")):
             st.session_state.answers = {k[2:]: v for k, v in st.session_state.items() if k.startswith("q_")}
             prompt = generate_prompt()
@@ -169,9 +239,9 @@ def letter_form():
             except Exception as e:
                 st.error(f"{t('error_message')} {str(e)}")
         if col2.form_submit_button(t("clear_button")):
-            st.session_state.answers = {}
-            st.session_state.generated_letter = ""
-            st.rerun()
+            clear_form()
+        if col3.form_submit_button(t("save_button")):
+            save_current_letter()
 
 # --- LETTER OUTPUT ---
 def show_letter():
@@ -183,16 +253,13 @@ def show_letter():
     subject_template = LETTER_STRUCTURE[st.session_state.selected_category]["subcategories"][st.session_state.selected_subcategory]["subject_template"]
     st.markdown(f"**Subject:** {subject_template.format(date=st.session_state.date)}")
     st.text_area("Letter Content", st.session_state.generated_letter, height=400)
-    st.download_button(t("download_button"), st.session_state.generated_letter, file_name="care_letter.txt")
-
-# --- SIDEBAR ---
-def sidebar():
-    st.sidebar.selectbox(t("language_select"), list(LANGUAGES.keys()), key="language")
-    st.sidebar.checkbox(t("gdpr_label"), value=st.session_state.gdpr_consent, key="gdpr_consent")
-    with st.sidebar.expander("App Info"):
-        st.markdown(f"**Version:** {st.session_state.meta['version']}")
-        st.markdown(f"**Letters Generated:** {st.session_state.meta['letter_count']}")
-        st.markdown(f"**Last Updated:** {st.session_state.meta['last_updated']}")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.download_button(t("download_button"), st.session_state.generated_letter, file_name="care_letter.txt")
+    with col2:
+        if st.button("📋 Copy to Clipboard"):
+            st.session_state.clipboard = st.session_state.generated_letter
+            st.toast("Copied to clipboard!", icon="📋")
 
 # --- MAIN ---
 def main():
@@ -203,7 +270,6 @@ def main():
         .stButton button:hover { transform: scale(1.02); }
         </style>
     """, unsafe_allow_html=True)
-
     sidebar()
     st.title(t("title"))
     if not st.session_state.authenticated:
