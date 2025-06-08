@@ -1,354 +1,424 @@
 import streamlit as st
 import json
-import datetime
+import openai
+from datetime import datetime
+import pytz
+from typing import Dict, List, Optional, Any
 import uuid
-from openai import OpenAI
+import pyperclip
 
-# ----- PAGE CONFIG -----
+# Constants
+VALID_KEYS_FILE = "valid_keys.json"
+LETTER_STRUCTURE_FILE = "letter_structure_meta.json"
+DATE_FORMAT = "%d %B %Y"
+TIMEZONE = "Europe/London"
+
+# Translations
+TRANSLATIONS = {
+    "en": {
+        "app_title": "NHS Care Companion Letter Generator",
+        "welcome": "Welcome to the NHS Care Companion Letter Generator",
+        "license_prompt": "Please enter your license key to continue",
+        "invalid_key": "Invalid license key. Please try again.",
+        "gdpr_title": "GDPR Compliance",
+        "gdpr_text": "I confirm that I will handle patient data in accordance with GDPR requirements.",
+        "gdpr_accept": "I Accept",
+        "language_select": "Select Language",
+        "category_select": "Select Letter Category",
+        "subcategory_select": "Select Subcategory/Issue",
+        "tone_select": "Select Tone",
+        "tone_standard": "Standard",
+        "tone_complaint": "Serious Formal Complaint",
+        "generate_button": "Generate Letter",
+        "letter_subject": "Subject",
+        "letter_date": "Date",
+        "letter_recipient": "Recipient",
+        "letter_body": "Body",
+        "save_button": "Save Letter",
+        "load_button": "Load Letter",
+        "delete_button": "Delete Letter",
+        "download_button": "Download as .txt",
+        "copy_button": "Copy to Clipboard",
+        "saved_letters": "Saved Letters",
+        "debug_prompt": "Debug: Prompt Used",
+        "no_saved_letters": "No saved letters found.",
+        "letter_saved": "Letter saved successfully!",
+        "letter_loaded": "Letter loaded successfully!",
+        "letter_deleted": "Letter deleted successfully!",
+        "letter_copied": "Letter copied to clipboard!",
+        "required_field": "This field is required",
+        "patient_ref": "Patient Reference",
+        "recipient_name": "Recipient Name",
+        "your_name": "Your Name",
+        "your_position": "Your Position",
+        "your_contact": "Your Contact Information"
+    },
+    "es": {
+        "app_title": "Generador de Cartas de Acompañamiento del NHS",
+        "welcome": "Bienvenido al Generador de Cartas de Acompañamiento del NHS",
+        "license_prompt": "Por favor, introduzca su clave de licencia para continuar",
+        "invalid_key": "Clave de licencia no válida. Por favor, inténtelo de nuevo.",
+        "gdpr_title": "Cumplimiento del GDPR",
+        "gdpr_text": "Confirmo que manejaré los datos del paciente de acuerdo con los requisitos del GDPR.",
+        "gdpr_accept": "Acepto",
+        "language_select": "Seleccionar Idioma",
+        "category_select": "Seleccionar Categoría de Carta",
+        "subcategory_select": "Seleccionar Subcategoría/Problema",
+        "tone_select": "Seleccionar Tono",
+        "tone_standard": "Estándar",
+        "tone_complaint": "Queja Formal Grave",
+        "generate_button": "Generar Carta",
+        "letter_subject": "Asunto",
+        "letter_date": "Fecha",
+        "letter_recipient": "Destinatario",
+        "letter_body": "Cuerpo",
+        "save_button": "Guardar Carta",
+        "load_button": "Cargar Carta",
+        "delete_button": "Eliminar Carta",
+        "download_button": "Descargar como .txt",
+        "copy_button": "Copiar al Portapapeles",
+        "saved_letters": "Cartas Guardadas",
+        "debug_prompt": "Depuración: Prompt Utilizado",
+        "no_saved_letters": "No se encontraron cartas guardadas.",
+        "letter_saved": "¡Carta guardada con éxito!",
+        "letter_loaded": "¡Carta cargada con éxito!",
+        "letter_deleted": "¡Carta eliminada con éxito!",
+        "letter_copied": "¡Carta copiada al portapapeles!",
+        "required_field": "Este campo es obligatorio",
+        "patient_ref": "Referencia del Paciente",
+        "recipient_name": "Nombre del Destinatario",
+        "your_name": "Su Nombre",
+        "your_position": "Su Cargo",
+        "your_contact": "Su Información de Contacto"
+    },
+    "fr": {
+        "app_title": "Générateur de Lettres d'Accompagnement NHS",
+        "welcome": "Bienvenue dans le Générateur de Lettres d'Accompagnement NHS",
+        "license_prompt": "Veuillez entrer votre clé de licence pour continuer",
+        "invalid_key": "Clé de licence invalide. Veuillez réessayer.",
+        "gdpr_title": "Conformité GDPR",
+        "gdpr_text": "Je confirme que je traiterai les données des patients conformément aux exigences du GDPR.",
+        "gdpr_accept": "J'accepte",
+        "language_select": "Sélectionner la Langue",
+        "category_select": "Sélectionner la Catégorie de Lettre",
+        "subcategory_select": "Sélectionner la Sous-catégorie/Problème",
+        "tone_select": "Sélectionner le Ton",
+        "tone_standard": "Standard",
+        "tone_complaint": "Plainte Formelle Sérieuse",
+        "generate_button": "Générer la Lettre",
+        "letter_subject": "Sujet",
+        "letter_date": "Date",
+        "letter_recipient": "Destinataire",
+        "letter_body": "Corps",
+        "save_button": "Enregistrer la Lettre",
+        "load_button": "Charger la Lettre",
+        "delete_button": "Supprimer la Lettre",
+        "download_button": "Télécharger en .txt",
+        "copy_button": "Copier dans le Presse-papiers",
+        "saved_letters": "Lettres Enregistrées",
+        "debug_prompt": "Débogage: Prompt Utilisé",
+        "no_saved_letters": "Aucune lettre enregistrée trouvée.",
+        "letter_saved": "Lettre enregistrée avec succès !",
+        "letter_loaded": "Lettre chargée avec succès !",
+        "letter_deleted": "Lettre supprimée avec succès !",
+        "letter_copied": "Lettre copiée dans le presse-papiers !",
+        "required_field": "Ce champ est obligatoire",
+        "patient_ref": "Référence du Patient",
+        "recipient_name": "Nom du Destinataire",
+        "your_name": "Votre Nom",
+        "your_position": "Votre Poste",
+        "your_contact": "Vos Coordonnées"
+    }
+}
+
+# Initialize session state
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "gdpr_accepted" not in st.session_state:
+    st.session_state.gdpr_accepted = False
+if "language" not in st.session_state:
+    st.session_state.language = "en"
+if "generated_letters" not in st.session_state:
+    st.session_state.generated_letters = {}
+if "current_letter" not in st.session_state:
+    st.session_state.current_letter = None
+if "form_data" not in st.session_state:
+    st.session_state.form_data = {}
+
+# Helper functions
+def get_text(key: str) -> str:
+    """Get translated text for the current language"""
+    lang = st.session_state.get("language", "en")
+    return TRANSLATIONS.get(lang, {}).get(key, TRANSLATIONS["en"].get(key, key))
+
+def load_json_file(filename: str) -> Dict:
+    """Load JSON file with error handling"""
+    try:
+        with open(filename, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        st.error(f"Error: {filename} not found.")
+        st.stop()
+    except json.JSONDecodeError:
+        st.error(f"Error: {filename} contains invalid JSON.")
+        st.stop()
+
+def validate_license_key(key: str) -> bool:
+    """Validate the provided license key"""
+    valid_keys = load_json_file(VALID_KEYS_FILE)
+    return key in valid_keys.get("keys", [])
+
+def get_current_date() -> str:
+    """Get current date in the specified format and timezone"""
+    tz = pytz.timezone(TIMEZONE)
+    return datetime.now(tz).strftime(DATE_FORMAT)
+
+def generate_prompt(category: str, subcategory: str, questions: Dict, tone: str, form_data: Dict) -> str:
+    """Generate the prompt for OpenAI"""
+    base_prompt = f"Write a professional {tone.lower()} letter in {st.session_state.language} regarding {category} - {subcategory}.\n\n"
+    base_prompt += f"Recipient: {form_data.get('recipient_name', '')}\n"
+    base_prompt += f"Patient Reference: {form_data.get('patient_ref', '')}\n"
+    base_prompt += f"Your Name: {form_data.get('your_name', '')}\n"
+    base_prompt += f"Your Position: {form_data.get('your_position', '')}\n"
+    base_prompt += f"Your Contact: {form_data.get('your_contact', '')}\n\n"
+    
+    if tone == get_text("tone_complaint"):
+        base_prompt += "This is a serious formal complaint. The tone should reflect the gravity of the situation while remaining professional.\n\n"
+    
+    for q_id, question in questions.items():
+        answer = form_data.get(q_id, "")
+        base_prompt += f"{question}: {answer}\n"
+    
+    return base_prompt
+
+def generate_letter(prompt: str) -> str:
+    """Generate letter using OpenAI API"""
+    try:
+        openai.api_key = st.secrets["openai"]["api_key"]
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that writes professional healthcare letters."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        st.error(f"Error generating letter: {str(e)}")
+        return ""
+
+def save_current_letter() -> None:
+    """Save the current letter to session state"""
+    if st.session_state.current_letter:
+        letter_id = str(uuid.uuid4())
+        st.session_state.generated_letters[letter_id] = st.session_state.current_letter
+        st.session_state.form_data["last_saved_id"] = letter_id
+        st.success(get_text("letter_saved"))
+
+def load_letter(letter_id: str) -> None:
+    """Load a letter from session state"""
+    if letter_id in st.session_state.generated_letters:
+        st.session_state.current_letter = st.session_state.generated_letters[letter_id]
+        st.success(get_text("letter_loaded"))
+
+def delete_letter(letter_id: str) -> None:
+    """Delete a letter from session state"""
+    if letter_id in st.session_state.generated_letters:
+        del st.session_state.generated_letters[letter_id]
+        if st.session_state.current_letter and st.session_state.current_letter.get("id") == letter_id:
+            st.session_state.current_letter = None
+        st.success(get_text("letter_deleted"))
+
+def copy_to_clipboard(text: str) -> None:
+    """Copy text to clipboard"""
+    try:
+        pyperclip.copy(text)
+        st.success(get_text("letter_copied"))
+    except Exception as e:
+        st.error(f"Failed to copy to clipboard: {str(e)}")
+
+# Page config
 st.set_page_config(
-    page_title="NHS Care Companion Letter Generator",
-    page_icon="📝",
-    layout="wide",
-    initial_sidebar_state="expanded",
+    page_title=get_text("app_title"),
+    page_icon="🏥",
+    layout="centered",
     menu_items={
-        'About': "## NHS Care Companion by Care Clarity\nGenerate formal letters for elderly care-related concerns, complaints, and advocacy."
+        "About": f"## {get_text('app_title')}\n\nProfessional letter generator for healthcare communications."
     }
 )
 
-# ----- CUSTOM CSS -----
+# Custom CSS
 st.markdown("""
     <style>
-    .main { background-color: #f9f9f9; }
-    .stButton button { 
-        border-radius: 10px;
-        transition: all 0.3s ease;
-    }
-    .stButton button:hover {
-        transform: scale(1.02);
-    }
-    .stTextInput input, .stSelectbox div, .stTextArea textarea {
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
-    .response-box {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 1rem;
-        background-color: #fff;
-        margin-top: 1rem;
-        min-height: 400px;
-    }
-    .letter-meta {
-        color: #555;
-        margin-bottom: 1rem;
-    }
+        .stTextInput, .stSelectbox, .stTextArea {
+            margin-bottom: 1rem;
+        }
+        .stButton button {
+            width: 100%;
+        }
+        .letter-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            background-color: #f9f9f9;
+        }
+        .letter-header {
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+        }
+        .debug-prompt {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: #f5f5f5;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# ----- TRANSLATIONS & LANGUAGES -----
-LANGUAGES = {
-    "English": "en",
-    "Spanish": "es",
-    "French": "fr",
-    "German": "de",
-    "Italian": "it",
-    "Portuguese": "pt",
-    "Dutch": "nl",
-    "Russian": "ru",
-    "Chinese (Simplified)": "zh",
-    "Japanese": "ja",
-    "Arabic": "ar",
-    "Hindi": "hi",
-    "Urdu": "ur"
-}
-
-TRANSLATIONS = {
-    "en": {
-        "language": "Language",
-        "license_prompt": "Enter your license key:",
-        "gdpr_consent": "I consent to data processing in accordance with GDPR.",
-        "category": "Letter Category",
-        "subcategory": "Issue",
-        "tone": "Tone",
-        "standard": "Standard",
-        "serious": "Serious Formal Complaint",
-        "generate": "Generate Letter",
-        "save_letter": "Save Letter",
-        "load_letter": "Load Saved Letter",
-        "delete_letter": "Delete Saved Letter",
-        "select_letter": "Select a saved letter",
-        "generated_letter": "Generated Letter",
-        "copy": "Copy to Clipboard",
-        "download": "Download as .txt",
-        "debug_prompt": "Show Generation Prompt (Debug)",
-        "recipient": "To: Care Provider / Local Authority",
-        "date": "Date",
-        "subject": "Subject",
-        "gdpr_required": "GDPR consent is required to proceed.",
-        "invalid_key": "Invalid license key.",
-        "question_missing": "Missing required input.",
-        "name_label": "Your Full Name",
-        "recipient_label": "Recipient Organization",
-        "tone_help": "Select 'Serious Formal Complaint' for legal matters"
-    }
-}
-
-def t(key: str) -> str:
-    """Get translation for the current language"""
-    lang_code = LANGUAGES.get(st.session_state.get("language", "English"), "en")
-    return TRANSLATIONS.get(lang_code, TRANSLATIONS["en"]).get(key, key)
-
-# ----- LOAD JSON FILES -----
-def load_json(path):
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        st.error(f"Failed to load {path}")
-        return {}
-
-VALID_KEYS = load_json("valid_keys.json")
-LETTER_STRUCTURE = load_json("letter_structure_meta.json")
-
-# ----- INITIALIZE SESSION STATE -----
-DEFAULT_STATE = {
-    "authenticated": False,
-    "language": "English",
-    "gdpr_ok": False,
-    "license_key": "",
-    "user_name": "",
-    "recipient": "",
-    "date": datetime.date.today().strftime("%Y-%m-%d"),
-    "category": None,
-    "subcategory": None,
-    "tone": "Standard",
-    "answers": {},
-    "generated_letter": "",
-    "last_prompt": "",
-    "saved_letters": {},
-    "meta": {
-        "version": "2.1",
-        "letter_count": 0,
-        "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    }
-}
-
-for key, value in DEFAULT_STATE.items():
-    if key not in st.session_state:
-        st.session_state[key] = value
-
-# ----- LETTER GENERATION -----
-def generate_prompt() -> str:
-    """Generate the AI prompt with context"""
-    context = f"""**Context:**
-- Language: {st.session_state.language}
-- Category: {st.session_state.category}
-- Issue: {st.session_state.subcategory}
-- Tone: {st.session_state.tone}
-- Sender: {st.session_state.user_name}
-- Recipient: {st.session_state.recipient}
-- Date: {st.session_state.date}
-
-**Details:**
-"""
-    for q, a in st.session_state.answers.items():
-        context += f"- {q}: {a}\n"
-
-    context += f"""
-**Instructions:**
-Write a {'very formal complaint letter' if st.session_state.tone == "Serious Formal Complaint" else 'professional letter'} with:
-- Proper business letter format
-- Clear structure with introduction, body, and conclusion
-- {"Strong but polite language with potential legal references" if st.session_state.tone == "Serious Formal Complaint" else "Professional yet accessible tone"}
-- Specific references to provided details
-- Appropriate closing
-
-**Format:**
-[Date]
-[Recipient Address]
-[Subject Line]
-
-[Salutation],
-
-[Body paragraphs]
-
-[Closing],
-{st.session_state.user_name}
-"""
-    return context
-
-# ----- SAVE/LOAD LETTERS -----
-def save_current_letter():
-    """Save letter with metadata"""
-    if not st.session_state.generated_letter:
-        return
-        
-    letter_id = str(uuid.uuid4())[:8]
-    save_name = f"{st.session_state.category} - {st.session_state.subcategory} - {letter_id}"
-    
-    st.session_state.saved_letters[save_name] = {
-        "content": st.session_state.generated_letter,
-        "date": datetime.datetime.now().isoformat(),
-        "category": st.session_state.category,
-        "subcategory": st.session_state.subcategory,
-        "answers": st.session_state.answers.copy(),
-        "recipient": st.session_state.recipient,
-        "user_name": st.session_state.user_name,
-        "tone": st.session_state.tone,
-        "prompt": st.session_state.last_prompt
-    }
-    
-    st.session_state.meta["letter_count"] = len(st.session_state.saved_letters)
-    st.session_state.meta["last_updated"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    st.toast(f"Letter saved as: {save_name}", icon="💾")
-
-def load_letter(letter_title: str):
-    """Load a saved letter"""
-    if letter_title in st.session_state.saved_letters:
-        data = st.session_state.saved_letters[letter_title]
-        st.session_state.update({
-            "category": data["category"],
-            "subcategory": data["subcategory"],
-            "answers": data.get("answers", {}),
-            "recipient": data.get("recipient", ""),
-            "user_name": data.get("user_name", ""),
-            "tone": data.get("tone", "Standard"),
-            "generated_letter": data["content"],
-            "last_prompt": data.get("prompt", "")
-        })
-        st.toast(f"Loaded: {letter_title}", icon="📄")
-        st.rerun()
-
-# ----- AUTHENTICATION -----
-with st.sidebar:
-    st.session_state.language = st.selectbox(
-        t("language"),
-        list(LANGUAGES.keys()),
-        index=list(LANGUAGES.keys()).index(st.session_state.language)
-    )
-    
-    if not st.session_state.authenticated:
-        with st.form("auth_form"):
-            st.text_input(t("license_prompt"), type="password", key="license_key")
-            st.checkbox(t("gdpr_consent"), key="gdpr_ok")
-            if st.form_submit_button("Submit"):
-                if st.session_state.license_key in VALID_KEYS and st.session_state.gdpr_ok:
-                    st.session_state.authenticated = True
-                    st.rerun()
-                else:
-                    st.error(t("invalid_key") if not st.session_state.license_key in VALID_KEYS else t("gdpr_required")
-
+# Authentication
 if not st.session_state.authenticated:
+    st.title(get_text("welcome"))
+    license_key = st.text_input(get_text("license_prompt"), type="password")
+    
+    if st.button("Submit"):
+        if validate_license_key(license_key):
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error(get_text("invalid_key"))
     st.stop()
 
-# ----- MAIN APP -----
-st.title("📝 NHS Care Companion Letter Generator")
-
-# User Information
-col1, col2 = st.columns(2)
-with col1:
-    st.session_state.user_name = st.text_input(t("name_label"), st.session_state.user_name)
-with col2:
-    st.session_state.recipient = st.text_input(t("recipient_label"), st.session_state.recipient)
-
-# Letter Details
-st.session_state.category = st.selectbox(
-    t("category"),
-    list(LETTER_STRUCTURE.keys()),
-    index=list(LETTER_STRUCTURE.keys()).index(st.session_state.category) 
-    if st.session_state.category in LETTER_STRUCTURE else 0
-)
-
-if st.session_state.category:
-    st.session_state.subcategory = st.selectbox(
-        t("subcategory"),
-        list(LETTER_STRUCTURE[st.session_state.category].keys()),
-        index=list(LETTER_STRUCTURE[st.session_state.category].keys()).index(st.session_state.subcategory)
-        if st.session_state.subcategory in LETTER_STRUCTURE[st.session_state.category] else 0
-    )
-
-# Questions
-if st.session_state.subcategory:
-    questions = LETTER_STRUCTURE[st.session_state.category][st.session_state.subcategory]["questions"]
-    for q in questions:
-        answer = st.text_area(q["question"], 
-                            value=st.session_state.answers.get(q["question"], ""),
-                            placeholder=q.get("placeholder", ""))
-        st.session_state.answers[q["question"]] = answer
-
-# Tone Selection
-st.session_state.tone = st.radio(
-    t("tone"),
-    [t("standard"), t("serious")],
-    index=0 if st.session_state.tone == t("standard") else 1,
-    help=t("tone_help")
-)
-
-# Generate Button
-if st.button(t("generate"), type="primary"):
-    if not all([st.session_state.user_name, st.session_state.category, st.session_state.subcategory]):
-        st.error("Please complete all required fields")
-    else:
-        with st.spinner("Generating professional letter..."):
-            try:
-                client = OpenAI(api_key=st.secrets["openai"]["api_key"])
-                prompt = generate_prompt()
-                st.session_state.last_prompt = prompt
-                
-                response = client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[{"role": "user", "content": prompt}],
-                    temperature=0.3 if st.session_state.tone == t("serious") else 0.7
-                )
-                st.session_state.generated_letter = response.choices[0].message.content
-                st.session_state.meta["letter_count"] += 1
-                st.rerun()
-            except Exception as e:
-                st.error(f"Generation error: {str(e)}")
-
-# Display Generated Letter
-if st.session_state.generated_letter:
-    st.subheader(t("generated_letter"))
-    with st.container():
-        st.markdown(f"""<div class='response-box'>
-            <div class='letter-meta'>
-                <b>{t('recipient')}:</b> {st.session_state.recipient}<br>
-                <b>{t('date')}:</b> {st.session_state.date}<br>
-                <b>{t('subject')}:</b> {st.session_state.subcategory}
-            </div>
-            {st.session_state.generated_letter.replace('\n', '<br>')}
-        </div>""", unsafe_allow_html=True)
+# GDPR Consent
+if not st.session_state.gdpr_accepted:
+    st.title(get_text("gdpr_title"))
+    st.markdown(f"### {get_text('gdpr_text')}")
     
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.download_button(t("download"), 
-                          st.session_state.generated_letter,
-                          file_name=f"care_letter_{datetime.datetime.now().strftime('%Y%m%d')}.txt")
-    with col2:
-        if st.button(t("copy")):
-            st.session_state.clipboard = st.session_state.generated_letter
-            st.toast("Copied to clipboard!", icon="📋")
-    with col3:
-        if st.button(t("save_letter")):
-            save_current_letter()
+    if st.button(get_text("gdpr_accept")):
+        st.session_state.gdpr_accepted = True
+        st.rerun()
+    st.stop()
 
-# Saved Letters Panel
-with st.sidebar:
-    if st.session_state.saved_letters:
-        st.markdown("### 💾 Saved Letters")
-        for title in st.session_state.saved_letters:
-            cols = st.columns([4,1])
-            with cols[0]:
-                if st.button(title, key=f"load_{title}", use_container_width=True):
-                    load_letter(title)
-            with cols[1]:
-                if st.button("🗑️", key=f"del_{title}"):
-                    del st.session_state.saved_letters[title]
+# Main App
+st.title(get_text("app_title"))
+
+# Language selection
+st.session_state.language = st.selectbox(
+    get_text("language_select"),
+    options=list(TRANSLATIONS.keys()),
+    format_func=lambda x: {"en": "English", "es": "Español", "fr": "Français"}.get(x, x)
+)
+
+# Load letter structure
+letter_structure = load_json_file(LETTER_STRUCTURE_FILE)
+categories = list(letter_structure.keys())
+
+# Category selection
+category = st.selectbox(get_text("category_select"), categories)
+subcategories = list(letter_structure[category].keys())
+
+# Subcategory selection
+subcategory = st.selectbox(get_text("subcategory_select"), subcategories)
+questions = letter_structure[category][subcategory].get("questions", {})
+
+# Tone selection
+tone = st.selectbox(
+    get_text("tone_select"),
+    options=[get_text("tone_standard"), get_text("tone_complaint")]
+)
+
+# Dynamic form for questions
+form_data = {}
+st.subheader("Letter Details")
+
+required_fields = {
+    "recipient_name": get_text("recipient_name"),
+    "patient_ref": get_text("patient_ref"),
+    "your_name": get_text("your_name"),
+    "your_position": get_text("your_position"),
+    "your_contact": get_text("your_contact")
+}
+
+for field_id, label in required_fields.items():
+    form_data[field_id] = st.text_input(f"{label} *", key=field_id)
+
+for q_id, question in questions.items():
+    form_data[q_id] = st.text_area(question, key=q_id)
+
+st.session_state.form_data = form_data
+
+# Generate letter
+if st.button(get_text("generate_button")):
+    # Validate required fields
+    missing_fields = [label for field_id, label in required_fields.items() if not form_data.get(field_id)]
+    if missing_fields:
+        st.error(f"{get_text('required_field')}: {', '.join(missing_fields)}")
+    else:
+        with st.spinner("Generating letter..."):
+            prompt = generate_prompt(category, subcategory, questions, tone, form_data)
+            letter_content = generate_letter(prompt)
+            
+            if letter_content:
+                st.session_state.current_letter = {
+                    "id": str(uuid.uuid4()),
+                    "subject": f"{category} - {subcategory}",
+                    "date": get_current_date(),
+                    "recipient": form_data.get("recipient_name", ""),
+                    "content": letter_content,
+                    "prompt": prompt
+                }
+
+# Display generated letter
+if st.session_state.current_letter:
+    letter = st.session_state.current_letter
+    st.subheader("Generated Letter")
+    
+    with st.container():
+        st.markdown(f"<div class='letter-container'>", unsafe_allow_html=True)
+        st.markdown(f"<div class='letter-header'><strong>{get_text('letter_subject')}:</strong> {letter['subject']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<p><strong>{get_text('letter_date')}:</strong> {letter['date']}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p><strong>{get_text('letter_recipient')}:</strong> {letter['recipient']}</p>", unsafe_allow_html=True)
+        st.markdown(f"<div><strong>{get_text('letter_body')}:</strong></div>", unsafe_allow_html=True)
+        st.markdown(letter["content"], unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button(get_text("save_button")):
+                save_current_letter()
+        with col2:
+            st.download_button(
+                label=get_text("download_button"),
+                data=letter["content"],
+                file_name=f"NHS_Letter_{letter['date']}.txt",
+                mime="text/plain"
+            )
+        with col3:
+            if st.button(get_text("copy_button")):
+                copy_to_clipboard(letter["content"])
+        
+        # Debug expander
+        with st.expander(get_text("debug_prompt")):
+            st.code(letter["prompt"], language="text")
+
+# Saved letters section
+if st.session_state.generated_letters:
+    st.subheader(get_text("saved_letters"))
+    for letter_id, letter in st.session_state.generated_letters.items():
+        with st.container():
+            st.markdown(f"**{letter['subject']}** - {letter['date']}")
+            col1, col2, col3 = st.columns([2,1,1])
+            with col1:
+                if st.button(f"View {letter_id[:8]}", key=f"view_{letter_id}"):
+                    load_letter(letter_id)
                     st.rerun()
-
-# Debug View
-with st.expander(t("debug_prompt")):
-    if "last_prompt" in st.session_state:
-        st.code(st.session_state.last_prompt)
-
-                   
+            with col2:
+                if st.button(f"Delete {letter_id[:8]}", key=f"delete_{letter_id}"):
+                    delete_letter(letter_id)
+                    st.rerun()
+else:
+    st.info(get_text("no_saved_letters"))
